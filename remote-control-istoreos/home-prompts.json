@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "prompts": [
+    {
+      "id": "remote-istoreos-connect",
+      "title": "连接 iStoreOS",
+      "prompt": "帮我连接并只读检查 root@192.168.30.93 这台 iStoreOS，包括系统版本、磁盘、Docker、KSpeeder/iStoreEnhance、关键服务和最近错误日志。不要执行写操作。"
+    },
+    {
+      "id": "remote-istoreos-docker-slow",
+      "title": "Docker 下载慢",
+      "prompt": "帮我诊断远程 iStoreOS 的 Docker 镜像下载慢或失败。请先通过 SSH 只读检查 Docker、registry_mirrors、iStoreEnhance/KSpeeder 和磁盘空间；需要安装、写配置或启停服务前先向我确认。"
+    },
+    {
+      "id": "remote-istoreos-github-slow",
+      "title": "GitHub 下载慢",
+      "prompt": "帮我在远程 iStoreOS 上通过 KSpeeder DomainFold 加速下载 GitHub/GitLab/HuggingFace 文件。请先确认 iStoreEnhance/KSpeeder 状态，并优先使用 skills 的统一下载入口。"
+    },
+    {
+      "id": "remote-istoreos-install-failure",
+      "title": "应用安装失败",
+      "prompt": "帮我诊断远程 iStoreOS 的 iStore 应用、opkg 软件包或 Docker 类应用安装失败。请先只读收集包管理、Docker、磁盘空间、KSpeeder 和日志证据。"
+    }
+  ]
+}

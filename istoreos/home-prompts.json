@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "prompts": [
+    {
+      "id": "istoreos-system-overview",
+      "title": "系统概览",
+      "prompt": "帮我检查当前 iStoreOS 系统状态，包括版本、CPU/内存、磁盘空间、挂载点、关键服务和最近错误日志。请优先使用 istoreos-logs-and-diagnostics 收集证据。"
+    },
+    {
+      "id": "istoreos-network-dns",
+      "title": "网络和 DNS",
+      "prompt": "帮我诊断当前路由器网络和 DNS 是否正常，包括 LAN/WAN、网关、DNS、DHCP、IPv6 RA 和客户端解析问题。请先收集配置和日志证据，再给出修复建议。"
+    },
+    {
+      "id": "istoreos-package-install",
+      "title": "应用安装失败",
+      "prompt": "帮我诊断 iStore 应用或 opkg 软件包安装失败。请优先使用 istoreos-package-manager 和 istoreos-logs-and-diagnostics 检查软件源、网络、空间、架构和依赖问题。"
+    },
+    {
+      "id": "istoreos-storage",
+      "title": "磁盘和挂载",
+      "prompt": "帮我检查系统空间、overlay 空间和外接磁盘挂载状态，判断是否存在空间不足、路径选错或数据目录放错位置的问题。请优先使用 istoreos-storage-path。"
+    },
+    {
+      "id": "istoreos-docker",
+      "title": "Docker 检查",
+      "prompt": "帮我检查 Docker 是否正常，包括 dockerd 状态、Docker 根目录、镜像拉取、容器状态和磁盘空间。请优先使用 istoreos-docker-basics。"
+    },
+    {
+      "id": "istoreos-service-access",
+      "title": "服务无法访问",
+      "prompt": "帮我诊断某个服务为什么无法访问，包括进程、监听端口、防火墙、日志和局域网访问路径。请优先使用 istoreos-service-manager 和 istoreos-source-introspect。"
+    },
+    {
+      "id": "istoreos-backup",
+      "title": "备份和恢复",
+      "prompt": "帮我检查当前 iStoreOS 配置和应用如何备份，列出需要备份的配置、应用数据和风险点。请优先使用 istoreos-backup-restore。"
+    },
+    {
+      "id": "kaiplus-self-check",
+      "title": "KaiPlus 自检",
+      "prompt": "帮我检查 KaiPlus 服务是否正常，包括 kaiplus_bin 进程、8198 端口、KAIPLUS_HOME、workspace、config/state/cache、skills、system prompt 和最近日志。"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "profile": "remote-control-istoreos",
+  "title": "Remote iStoreOS Control",
+  "description": "KaiPlus or Codex running on another machine and controlling an iStoreOS/OpenWrt device through SSH or router APIs.",
+  "agents": [
+    "remote-istoreos.md"
+  ],
+  "skillsRoot": ".",
+  "homePrompts": "home-prompts.json",
+  "routing": "TASK_ROUTING.md"
+}

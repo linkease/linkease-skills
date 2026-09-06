@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "profile": "asusgo",
+  "title": "ASUSWRT / asusgo",
+  "description": "KaiPlus profile for ASUSWRT/Koolshare/asusgo environments.",
+  "agents": [],
+  "skillsRoot": "skills",
+  "homePrompts": "home-prompts.json"
+}

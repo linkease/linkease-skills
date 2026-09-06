@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "profile": "istoreos",
+  "title": "iStoreOS",
+  "description": "KaiPlus running directly on an iStoreOS/OpenWrt device.",
+  "agents": [
+    "system.md",
+    "istoreos.md"
+  ],
+  "skillsRoot": "skills",
+  "homePrompts": "home-prompts.json",
+  "routing": "TASK_ROUTING.md"
+}

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "prompts": [
+    {
+      "id": "asusgo-system-overview",
+      "title": "系统概览",
+      "prompt": "帮我检查当前 ASUSWRT/Koolshare 系统状态，包括固件信息、CPU/内存、JFFS/USB/临时目录空间、Koolshare 目录、dbus 状态、关键脚本和最近错误日志。请先收集只读证据。"
+    },
+    {
+      "id": "asusgo-software-center-search",
+      "title": "软件中心搜索",
+      "prompt": "帮我在 Koolshare 软件中心搜索插件。请查询 https://rogsoft.ddnsto.com/koolcenter/app.json.js，并只整理相关插件的 name、title、description、version、tags、home_url、tar_url 和 md5。"
+    },
+    {
+      "id": "asusgo-plugin-install-failure",
+      "title": "插件安装失败",
+      "prompt": "帮我诊断 Koolshare 插件安装失败。请检查 /tmp/upload、空间、tar 包、md5、soft_name、ks_tar_install.sh 输出、软件中心状态和相关日志；只读收集证据后再给修复建议。"
+    },
+    {
+      "id": "asusgo-plugin-not-running",
+      "title": "插件未运行",
+      "prompt": "帮我诊断 Koolshare 插件已安装但没有运行。请检查 dbus 启用项、/koolshare/scripts/<plugin>_config.sh、状态脚本、日志、进程和端口；需要启动或重启前先向我确认。"
+    },
+    {
+      "id": "asusgo-storage-path",
+      "title": "存储和路径",
+      "prompt": "帮我检查 ASUSWRT/Koolshare 的 JFFS、USB、/tmp/upload 和 /koolshare 路径空间，判断插件安装或数据目录应该放在哪里，并先验证路径是否存在、可写和空间足够。"
+    },
+    {
+      "id": "asusgo-betterapps-kaiplus-self-check",
+      "title": "BetterApps/KaiPlus 自检",
+      "prompt": "帮我检查 BetterApps/KaiPlus 在 ASUSWRT/Koolshare 上是否正常，包括服务进程、监听端口、安装目录、配置目录、skills、system prompt、启动脚本和最近日志；请先只读收集证据。"
+    }
+  ]
+}
