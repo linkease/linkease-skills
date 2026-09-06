@@ -1,6 +1,6 @@
 ---
 name: istoreos-kspeeder-domainfold-fetch
-description: On iStoreOS/OpenWrt, when users download (curl/wget/uclient-fetch) from GitHub/Gist/etc (especially if slow/failing), prefer using iStoreEnhance (KSpeeder) DomainFold to remap the origin URL; if remap succeeds, download via the accelerated URL (DNS-free admin proxy first), with diagnostics and fallback.
+description: On iStoreOS/OpenWrt, when users download files from GitHub/Gist/GitLab/HuggingFace/package registries, use the target router's resident KSpeeder `kspeeder download` command for plan-driven direct-vs-accelerated race download, with JSON diagnostics for AI follow-up.
 ---
 
 ## Trigger
@@ -25,7 +25,8 @@ DomainFold 的核心是把 “origin URL（如 github.com）” 映射到 “入
 
 - 路由表：`domainfold.DefaultRoutes`（`/gh` 对应 `https://github.com`）
 - 入口域名规则：`/gh` + `AliasSuffix(linkease.net)` → `gh.linkease.net`
-- `cmd/multi` 提供 remap API：`POST /api/domainfold/remap` with JSON body `{"url":"<origin>"}` → `{ output, admin_path }`
+- `cmd/multi` 提供 plan API：`POST /api/domainfold/plan` with JSON body `{"url":"<origin>"}` → `{ supported, ready, strategy, candidates }`
+- `cmd/multi` 仍提供 remap API：`POST /api/domainfold/remap` with JSON body `{"url":"<origin>"}` → `{ output, admin_path }`
 - `cmd/multi` 还提供 admin proxy：`http://127.0.0.1:5003/gh/...` 会反向代理到本机 TLS 端口并带正确 SNI/Host（无需 DNS）
 
 DomainFold 的支持范围不止 GitHub：默认路由表还包含 GitLab、HuggingFace、常见包仓库，以及多种 AI API 域名映射（见 `kspeeder/domainfold/routes.go`）。
@@ -53,16 +54,20 @@ If not installed, route through the acceleration setup skill path so install/aut
 
 Then require user to reply: `已安装`.
 
-### 3) Remap and fetch (recommended: admin proxy mode, no DNS needed)
+### 3) Download on the target router (recommended: kspeeder download JSON mode)
 
 Use:
 
-- `SKILLS_DIR="${SKILLS_DIR:-${CODEX_HOME:-/config/.codex}/skills}"; [ -d "$SKILLS_DIR" ] || SKILLS_DIR="${CODEX_HOME:-$HOME/.codex}/skills"; [ -d "$SKILLS_DIR" ] || SKILLS_DIR="/config/.agents/skills"; [ -d "$SKILLS_DIR" ] || SKILLS_DIR="$HOME/.agents/skills"; [ -d "$SKILLS_DIR" ] || SKILLS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills"; [ -d "$SKILLS_DIR" ] || SKILLS_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/opencode/skills"; sh "$SKILLS_DIR/istoreos-kspeeder-domainfold-fetch/scripts/fetch_via_domainfold.sh" <URL> [curl|wget] [extra args...]`
+- `kspeeder download --json --events=ndjson -O /path/to/file "<URL>"`
+- `kspeeder download --mode race --json -O /path/to/file "<URL>"`
 
 It will:
 
-1) Call `http://127.0.0.1:<adminPort>/api/domainfold/remap` (POST JSON `{"url":"..."}`) to get `admin_path`.
-2) Fetch `http://127.0.0.1:<adminPort><admin_path>` via curl/wget.
+1) Call the resident KSpeeder admin process for a DomainFold download plan.
+2) If the URL is supported and KSpeeder is ready, race origin and admin proxy candidates.
+3) Pick the faster candidate after the probe window and cancel the loser.
+4) Write to `.syn` first, then atomically rename to the requested output path.
+5) Keep the final result JSON on stdout and live progress events on stderr.
 
 ### 3.1) Preferred unified entry: ksget (retry + fallback)
 
@@ -75,17 +80,13 @@ Use:
 
 Behavior:
 
-- Try a list of accelerated candidates in order (prints diagnostics: URL, result, elapsed, and curl HTTP code when available):
-  1) KSpeeder DomainFold admin proxy URL (DNS-free): `http://127.0.0.1:<adminPort><admin_path>`
-  2) Optional PathHub upstream bases (if `KSGET_PATHHUB_UPSTREAMS` is set): `<base><admin_path>` (e.g. `https://gh.d4ctech.com` + `/gh/...`)
-  3) DomainFold entry URL (`output` like `https://gh.linkease.net:<tlsPort>/...`) if it exists
-  4) Fallback to the original URL once
+- `ksget.sh` is now only a compatibility wrapper around `kspeeder download`.
+- `-o <FILE> <URL>` is translated to `kspeeder download -O <FILE> <URL>`.
+- Legacy `-O <URL>` saves to the URL basename.
+- Set `KSGET_JSON=1` when the caller needs structured output.
+- Set `KSGET_MODE=direct|accelerated|race|probe` only when overriding the default `auto` mode.
 - Does not modify global `curl/wget` behavior.
-- Does not start services by default. To permit `ksget.sh` to auto-start iStoreEnhance, require explicit confirmation and set `KSGET_AUTO_START=1 CONFIRM_KSPEEDER_SERVICE_APPLY=YES`.
-- Fixed 3-phase loop (no speed probe / no Range dependency):
-  1) try origin URL (with connect timeout)
-  2) if remap succeeds, try accelerated candidates (admin proxy first)
-  3) fallback to origin URL again
+- Does not start services by default. If JSON output returns `service_not_ready` with `next_action=start_kspeeder_service`, explain the service effect and ask the user before starting iStoreEnhance/KSpeeder.
 
 ### 4) Optional: generate the entry URL (gh.linkease.net) only
 

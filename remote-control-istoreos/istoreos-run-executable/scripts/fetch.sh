@@ -92,7 +92,7 @@ if [ -z "$out_file" ]; then
   out_file="$tmp_dir/$(basename_from_url "$url")"
 fi
 
-part="${out_file}.part.$$"
+part="${out_file}.syn.$$"
 
 SKILLS_DIR="$(skills_root)"
 
@@ -102,7 +102,13 @@ if [ -n "${SKILLS_DIR:-}" ] && [ -f "$SKILLS_DIR/istoreos-kspeeder-domainfold-fe
 fi
 
 download_ok=0
-if [ -n "$ksget" ]; then
+if command -v kspeeder >/dev/null 2>&1; then
+  if kspeeder download --json --events ndjson -O "$part" "$url" >/dev/null 2>&1; then
+    download_ok=1
+  fi
+fi
+
+if [ "$download_ok" -ne 1 ] && [ -n "$ksget" ]; then
   if sh "$ksget" -o "$part" "$url" >/dev/null 2>&1; then
     download_ok=1
   fi

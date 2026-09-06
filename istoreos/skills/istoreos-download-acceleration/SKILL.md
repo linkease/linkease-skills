@@ -13,7 +13,7 @@ Do not ask the user to choose a skill. Treat "下载慢", "拉镜像失败", "Gi
 
 ## Dispatch Rules
 
-1. If the input is an external file URL, use `istoreos-kspeeder-domainfold-fetch/scripts/ksget.sh`.
+1. If the input is an external file URL, use `kspeeder download --json --events=ndjson -O <FILE> <URL>`; use `istoreos-kspeeder-domainfold-fetch/scripts/ksget.sh` only as a legacy-compatible wrapper.
 2. If the input is a Docker image pull, first run Docker space checks, then ensure `istoreenhance` is ready, then run the original `docker pull`.
 3. If the input is Docker Compose or an iStore Docker-style app install, route to `istoreos-docker-basics` first; that skill will require the KSpeeder readiness check before any pull-like action.
 4. If setup emits `need-confirmation:`, explain the install/UCI/service effect in user language, ask once, and rerun only after explicit confirmation.
@@ -26,6 +26,7 @@ Use the dispatcher when the user provided a concrete URL or image:
 SKILLS_DIR="${KAIPLUS_SKILLS_DIR:-${KAIPLUS_HOME:?KAIPLUS_HOME is required}/config/skills}"
 sh "$SKILLS_DIR/istoreos-download-acceleration/scripts/dispatch.sh" url -o /tmp/file.bin "https://github.com/..."
 sh "$SKILLS_DIR/istoreos-download-acceleration/scripts/dispatch.sh" docker-pull nginx:latest
+kspeeder download --json --events=ndjson -O /tmp/file.bin "https://github.com/..."
 ```
 
 ## Boundaries

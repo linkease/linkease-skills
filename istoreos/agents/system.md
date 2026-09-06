@@ -17,16 +17,13 @@
 ## 统一下载入口（非常重要：DomainFold 不仅是 GitHub）
 
 - 当用户没有明确区分 Docker 镜像还是文件 URL，只表达“下载慢/拉取失败/帮我下载”时，先使用 `istoreos-download-acceleration` 分流到正确闭环。
-- 当用户要用 `curl/wget/uclient-fetch` 下载/访问外部 URL（尤其是 GitHub、GitLab、HuggingFace、各种包仓库、以及 DomainFold 支持的其它站点；`.ipk`/大文件更明显）时：**优先使用 skills 提供的统一入口脚本**（不要手写直连 `curl/wget`）。
-- 即使用户直接贴了 `curl/wget` 下载命令，也不要原样执行；应优先把其中的 URL 改写为 `ksget.sh` 的调用（并保留 `-o/-O` 输出语义）。
-- 统一入口脚本会：
-  - 先尝试原始 URL（带连接超时）
-  - 失败后尝试 iStoreEnhance(KSpeeder) DomainFold 改写出的加速候选（并提供诊断）
-  - 最后再回退原始 URL 作为兜底
-- 统一入口脚本：
-  - `SKILLS_DIR="${KAIPLUS_SKILLS_DIR:-${KAIPLUS_HOME:?KAIPLUS_HOME is required}/config/skills}"; sh "$SKILLS_DIR/istoreos-kspeeder-domainfold-fetch/scripts/ksget.sh" -O '<URL>'`
-- 需要指定输出文件路径时，优先用 `-o <FILE> <URL>`（比 `-O <FILE> <URL>` 更兼容旧版本脚本）。
-- 只有当上述脚本不存在/不可用时，才允许退回到原始 `curl/wget`（并输出诊断信息与下一步证据采集命令）。
+- 当用户要用 `curl/wget/uclient-fetch` 下载/访问外部 URL（尤其是 GitHub、GitLab、HuggingFace、各种包仓库、以及 DomainFold 支持的其它站点；`.ipk`/大文件更明显）时：**优先使用 `kspeeder download --json --events=ndjson -O <FILE> <URL>`**（不要手写直连 `curl/wget`）。
+- 即使用户直接贴了 `curl/wget` 下载命令，也不要原样执行；应优先把其中的 URL 改写为 `kspeeder download` 的调用（并保留输出文件路径语义）。旧环境才使用 `ksget.sh` 兼容入口。
+- `kspeeder download` 会向本机 KSpeeder 后台请求 DomainFold plan；支持加速时同时探测直连和 admin proxy，选择更快者继续下载，并输出 `selected`、`attempts`、`fallback_reason`、`error_kind` 等最终 JSON 证据，同时通过 stderr 输出 NDJSON 进度事件。
+- 推荐命令：
+  - `kspeeder download --json --events=ndjson -O /tmp/download.bin '<URL>'`
+- 如果返回 `service_not_ready` 且 `next_action=start_kspeeder_service`，先向用户解释启动 iStoreEnhance/KSpeeder 的影响并等待确认。
+- 只有当 `kspeeder download` 和 `ksget.sh` 都不存在/不可用时，才允许退回到原始 `curl/wget`（并输出诊断信息与下一步证据采集命令）。
 
 ## 需要确认系统信息时（先探测再行动）
 
