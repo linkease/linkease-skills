@@ -36,4 +36,6 @@ iStoreEnhance download --mode auto --json --events=ndjson -O /tmp/file.bin "http
 - Do not change global `curl/wget/uclient-fetch` behavior.
 - Do not auto-start or install services unless the user has confirmed the specific effect.
 - For mise Node.js installs, prefer `MISE_NODE_MIRROR_URL=https://dl-node-unofficial.linkease.net:5443/` through `mise-istore`; do not start a separate download gateway process for the product path.
+- For mise Python installs, source `/lib/functions/mise.sh`, run `istore_runtime_env`, then use `mise-istore install python@<version>` so GitHub Release URL replacement can accelerate the Python runtime artifact through `dl-github`.
+- For pip package installs, prefer `PIP_INDEX_URL=https://dl-pypi.linkease.net:5443/simple/ python -m pip install <pkg>`; do not use `extra-index-url` for the default product path.
 - For npm global package installs, prefer `npm install -g <pkg> --registry=https://dl-npm.linkease.net:5443`; do not use `registry.npmmirror.com` when the user wants KSpeeder-owned adaptive selection.

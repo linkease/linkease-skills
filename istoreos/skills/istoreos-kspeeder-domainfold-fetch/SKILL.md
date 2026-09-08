@@ -91,7 +91,21 @@ For Go module downloads, keep the default checksum database enabled and set GOPR
 
 `dl-golang` covers module metadata, module zip artifacts, and `/sumdb/sum.golang.org/...` checksum database requests. Do not set `GOSUMDB=off` unless the user explicitly asks to bypass Go checksum verification.
 
-### 3.3) Legacy-compatible entry: ksget.sh
+### 3.3) mise / Python runtime and pip acceleration
+
+For Python installed by mise, source the iStoreOS runtime environment first. It sets HOME/PATH for the Runtime directory and automatically enables GitHub Release URL replacement when the resident iStoreEnhance gateway is available:
+
+- `. /lib/functions/mise.sh; istore_runtime_env; mise-istore install python@3.13.7`
+
+The automatic replacement maps only GitHub Release assets to `https://dl-github.linkease.net:5443/...`, which accelerates the Astral `python-build-standalone` CPython tarball currently used by mise.
+
+For pip package downloads, keep a single index URL and let the gateway handle metadata rewrite plus artifact race/cache:
+
+- `PIP_INDEX_URL=https://dl-pypi.linkease.net:5443/simple/ python -m pip install idna==3.10`
+
+`dl-pypi` fetches canonical PyPI Simple metadata and rewrites `files.pythonhosted.org/packages/...` links to `dl-pypi-files`. `dl-pypi-files` then races compatible artifact candidates. Do not use `extra-index-url` for the default product path.
+
+### 3.4) Legacy-compatible entry: ksget.sh
 
 Use:
 

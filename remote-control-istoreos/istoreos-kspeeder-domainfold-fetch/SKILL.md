@@ -88,7 +88,18 @@ Run these on the target router, not on the AI host:
 
 `dl-golang` covers module metadata, module zip artifacts, and `/sumdb/sum.golang.org/...` checksum database requests. Keep the default Go checksum database enabled; do not set `GOSUMDB=off` unless the user explicitly asks to bypass checksum verification.
 
-### 3.3) Preferred unified entry: ksget (retry + fallback)
+### 3.3) Remote mise / Python runtime and pip acceleration
+
+Run these on the target router, not on the AI host:
+
+- `. /lib/functions/mise.sh; istore_runtime_env; mise-istore install python@3.13.7`
+- `PIP_INDEX_URL=https://dl-pypi.linkease.net:5443/simple/ python -m pip install idna==3.10`
+
+`istore_runtime_env` sets HOME/PATH for the target router Runtime directory and automatically enables GitHub Release URL replacement when the resident iStoreEnhance gateway is available. That replacement accelerates the Astral `python-build-standalone` CPython tarball currently used by mise through `dl-github`.
+
+For pip, keep one index URL. `dl-pypi` fetches canonical PyPI Simple metadata and rewrites `files.pythonhosted.org/packages/...` links to `dl-pypi-files`; `dl-pypi-files` then races compatible artifact candidates. Do not use `extra-index-url` for the default product path.
+
+### 3.4) Preferred unified entry: ksget (retry + fallback)
 
 Use:
 
