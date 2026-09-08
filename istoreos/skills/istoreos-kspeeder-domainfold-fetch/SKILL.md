@@ -1,6 +1,6 @@
 ---
 name: istoreos-kspeeder-domainfold-fetch
-description: On iStoreOS/OpenWrt, when users download files from GitHub/Gist/GitLab/HuggingFace/package registries, use the resident KSpeeder `kspeeder download` command for plan-driven direct-vs-accelerated race download, with JSON diagnostics for AI follow-up.
+description: On iStoreOS/OpenWrt, when users download files from GitHub/Gist/GitLab/HuggingFace/package registries, use the resident iStoreEnhance/KSpeeder `download` command for adaptive direct-vs-accelerated download, with JSON diagnostics for AI follow-up.
 ---
 
 ## Trigger
@@ -27,7 +27,7 @@ DomainFold 的核心是把 “origin URL（如 github.com）” 映射到 “入
 - 入口域名规则：`/gh` + `AliasSuffix(linkease.net)` → `gh.linkease.net`
 - `cmd/multi` 提供 plan API：`POST /api/domainfold/plan` with JSON body `{"url":"<origin>"}` → `{ supported, ready, strategy, candidates }`
 - `cmd/multi` 仍提供 remap API：`POST /api/domainfold/remap` with JSON body `{"url":"<origin>"}` → `{ output, admin_path }`
-- `cmd/multi` 还提供 admin proxy：`http://127.0.0.1:5003/gh/...` 会反向代理到本机 TLS 端口并带正确 SNI/Host（无需 DNS）
+- `cmd/multi` 的下载网关使用 `https://dl-{routeKey}.linkease.net:5443/...`，例如 mise Node.js 使用 `https://dl-node-unofficial.linkease.net:5443/`
 
 DomainFold 的支持范围不止 GitHub：默认路由表还包含 GitLab、HuggingFace、常见包仓库，以及多种 AI API 域名映射（见 `kspeeder/domainfold/routes.go`）。
 
@@ -54,22 +54,44 @@ If not installed, ask the user to install it with:
 
 Then require user to reply: `已安装`.
 
-### 3) Download (recommended: kspeeder download JSON mode)
+### 3) Download (recommended: iStoreEnhance download JSON mode)
 
 Use:
 
-- `kspeeder download --json --events=ndjson -O /path/to/file "<URL>"`
-- `kspeeder download --mode race --json -O /path/to/file "<URL>"`
+- `iStoreEnhance download --mode auto --json --events=ndjson -O /path/to/file "<URL>"`
+- `kspeeder download --mode auto --json --events=ndjson -O /path/to/file "<URL>"` when the binary is named `kspeeder`
 
 It will:
 
 1) Call the resident KSpeeder admin process for a DomainFold download plan.
-2) If the URL is supported and KSpeeder is ready, race origin and admin proxy candidates.
-3) Pick the faster candidate after the probe window and cancel the loser.
+2) In `auto` mode, probe direct first. If direct is fast enough, keep direct and save KSpeeder bandwidth.
+3) If direct is slow and KSpeeder is ready, race origin and admin proxy candidates, then cancel the loser.
 4) Write to `.syn` first, then atomically rename to the requested output path.
-5) Keep the final result JSON on stdout and live progress events on stderr.
+5) Keep the final result JSON on stdout and live progress events on stderr, including strategy, selected route, speed, bytes, and error kind.
 
-### 3.1) Legacy-compatible entry: ksget.sh
+### 3.1) mise / Node.js download acceleration
+
+For Node.js installed by mise, prefer the resident smart-host route. It reuses the iStoreEnhance TLS port and does not require a separate gateway process:
+
+- Health check: `curl -fsS https://dl-node-unofficial.linkease.net:5443/index.json >/dev/null || wget -q -T 3 -O /dev/null https://dl-node-unofficial.linkease.net:5443/index.json`
+- Use with mise: `MISE_NODE_MIRROR_URL=https://dl-node-unofficial.linkease.net:5443/ MISE_NODE_VERIFY=0 mise-istore use --global node@lts`
+- Use with npm: `npm install -g <pkg> --registry=https://dl-npm.linkease.net:5443`
+
+The route maps only to the configured Node.js release upstream.
+
+### 3.2) mise / Go SDK and Go module acceleration
+
+For Go installed by mise, use the resident Go SDK smart-host route:
+
+- `MISE_GO_DOWNLOAD_MIRROR=https://dl-go-sdk.linkease.net:5443 mise-istore install go@1.27.1`
+
+For Go module downloads, keep the default checksum database enabled and set GOPROXY:
+
+- `GOPROXY=https://dl-golang.linkease.net:5443,direct go mod download`
+
+`dl-golang` covers module metadata, module zip artifacts, and `/sumdb/sum.golang.org/...` checksum database requests. Do not set `GOSUMDB=off` unless the user explicitly asks to bypass Go checksum verification.
+
+### 3.3) Legacy-compatible entry: ksget.sh
 
 Use:
 
@@ -80,11 +102,11 @@ Use:
 
 Behavior:
 
-- `ksget.sh` is now only a compatibility wrapper around `kspeeder download`.
+- `ksget.sh` is now only a compatibility wrapper around `iStoreEnhance download` or `kspeeder download`.
 - `-o <FILE> <URL>` is translated to `kspeeder download -O <FILE> <URL>`.
 - Legacy `-O <URL>` saves to the URL basename.
 - Set `KSGET_JSON=1` when the caller needs structured output.
-- Set `KSGET_MODE=direct|accelerated|race|probe` only when overriding the default `auto` mode.
+- Set `KSGET_MODE=direct|accelerated|race|probe` only when overriding the default `auto` mode. Prefer `auto`.
 - Does not modify global `curl/wget` behavior.
 - Does not start services by default. If JSON output returns `service_not_ready` with `next_action=start_kspeeder_service`, explain the service effect and ask the user before starting iStoreEnhance/KSpeeder.
 
@@ -96,5 +118,5 @@ If you want to fetch via the entry URL directly, you must ensure `gh.linkease.ne
 
 ## Don’t
 
-- Don’t blindly claim `gh.linkease.net` will work without DNS; prefer admin proxy (`:5003` + `/gh/...`) which is DNS-free.
+- For mise/package-manager downloads, use `https://dl-{routeKey}.linkease.net:5443/...`.
 - Don’t modify `/etc/hosts` or DNS unless user explicitly asks.

@@ -52,9 +52,9 @@
 
 ## GitHub 下载加速（固定策略）
 
-- 当用户要用 `curl/wget/uclient-fetch` 下载 `github.com` / `gist.github.com` / GitHub Release/Raw 等 URL（尤其是 `.ipk`/大文件）时：优先使用 `kspeeder download --json --events=ndjson -O <FILE> <URL>`，让 KSpeeder 自己完成 direct-vs-accelerated 竞速、裁决、回退和进度上报。
-- 即使用户贴了“看起来能用”的 `curl/wget` 命令，也不要直接照抄运行；优先改成 `kspeeder download` 调用（保持输出文件路径语义不变）。旧环境才用 `ksget.sh` 兼容入口。
+- 当用户要用 `curl/wget/uclient-fetch` 下载 `github.com` / `gist.github.com` / GitHub Release/Raw 等 URL（尤其是 `.ipk`/大文件）时：优先使用 `iStoreEnhance download --mode auto --json --events=ndjson -O <FILE> <URL>`；如果二进制名是 `kspeeder`，使用 `kspeeder download --mode auto --json --events=ndjson -O <FILE> <URL>`。让 KSpeeder 自己完成 direct probe、direct-vs-accelerated 竞速、裁决、回退和进度上报。
+- 即使用户贴了“看起来能用”的 `curl/wget` 命令，也不要直接照抄运行；优先改成 `iStoreEnhance/kspeeder download` 调用（保持输出文件路径语义不变）。旧环境才用 `ksget.sh` 兼容入口。
 - 不修改系统全局 `curl/wget` 行为（不做 alias/wrapper 替换）；统一使用：
-  - `kspeeder download --json --events=ndjson -O /tmp/download.bin '<URL>'`
+  - `iStoreEnhance download --mode auto --json --events=ndjson -O /tmp/download.bin '<URL>'`
 - 需要指定输出文件路径时，优先用 `-o <FILE> <URL>`（比 `-O <FILE> <URL>` 更兼容旧版本脚本）。
-- 如果 `kspeeder download` 返回 `service_not_ready`，解释启动 iStoreEnhance/KSpeeder 的影响并等待用户确认；如果命令不存在，再提示升级 iStoreEnhance/KSpeeder 或使用 `ksget.sh` 兼容入口。
+- 如果 `iStoreEnhance/kspeeder download` 返回 `service_not_ready`，解释启动 iStoreEnhance/KSpeeder 的影响并等待用户确认；如果命令不存在，再提示升级 iStoreEnhance/KSpeeder 或使用 `ksget.sh` 兼容入口。

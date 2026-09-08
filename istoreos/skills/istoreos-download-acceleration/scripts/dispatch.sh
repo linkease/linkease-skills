@@ -49,6 +49,7 @@ basename_from_url() {
 dispatch_url_download() {
   out=""
   url=""
+  kspeeder_bin=""
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -o)
@@ -75,11 +76,16 @@ dispatch_url_download() {
     esac
   done
   [ -n "$url" ] || { usage; exit 2; }
-  if command -v kspeeder >/dev/null 2>&1; then
+  if command -v iStoreEnhance >/dev/null 2>&1; then
+    kspeeder_bin="iStoreEnhance"
+  elif command -v kspeeder >/dev/null 2>&1; then
+    kspeeder_bin="kspeeder"
+  fi
+  if [ -n "$kspeeder_bin" ]; then
     if [ -n "$out" ]; then
-      exec kspeeder download --json --events ndjson -O "$out" "$url"
+      exec "$kspeeder_bin" download --mode auto --json --events ndjson -O "$out" "$url"
     fi
-    exec kspeeder download "$url"
+    exec "$kspeeder_bin" download --mode auto "$url"
   fi
   ksget="$root/istoreos-kspeeder-domainfold-fetch/scripts/ksget.sh"
   [ -f "$ksget" ] || need "kspeeder binary and ksget wrapper are both unavailable; upgrade iStoreEnhance/KSpeeder first."

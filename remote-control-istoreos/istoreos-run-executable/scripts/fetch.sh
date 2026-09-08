@@ -102,8 +102,12 @@ if [ -n "${SKILLS_DIR:-}" ] && [ -f "$SKILLS_DIR/istoreos-kspeeder-domainfold-fe
 fi
 
 download_ok=0
-if command -v kspeeder >/dev/null 2>&1; then
-  if kspeeder download --json --events ndjson -O "$part" "$url" >/dev/null 2>&1; then
+if command -v iStoreEnhance >/dev/null 2>&1; then
+  if iStoreEnhance download --mode auto --json --events ndjson -O "$part" "$url" >/dev/null 2>&1; then
+    download_ok=1
+  fi
+elif command -v kspeeder >/dev/null 2>&1; then
+  if kspeeder download --mode auto --json --events ndjson -O "$part" "$url" >/dev/null 2>&1; then
     download_ok=1
   fi
 fi

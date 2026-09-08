@@ -27,8 +27,12 @@ basename_from_url() {
   printf '%s\n' "$b"
 }
 
-if ! command -v kspeeder >/dev/null 2>&1; then
-  echo "ksget.sh: kspeeder binary not found; install or upgrade iStoreEnhance/KSpeeder first." >&2
+if command -v iStoreEnhance >/dev/null 2>&1; then
+  kspeeder_bin="iStoreEnhance"
+elif command -v kspeeder >/dev/null 2>&1; then
+  kspeeder_bin="kspeeder"
+else
+  echo "ksget.sh: iStoreEnhance/kspeeder binary not found; install or upgrade iStoreEnhance/KSpeeder first." >&2
   exit 127
 fi
 
@@ -95,4 +99,4 @@ fi
 if [ -n "$out" ]; then
   set -- "$@" -O "$out"
 fi
-exec kspeeder "$@" "$url"
+exec "$kspeeder_bin" "$@" "$url"

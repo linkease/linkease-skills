@@ -13,7 +13,7 @@ Do not ask the user to choose a skill. Treat "下载慢", "拉镜像失败", "Gi
 
 ## Dispatch Rules
 
-1. If the input is an external file URL, use `kspeeder download --json --events=ndjson -O <FILE> <URL>`; use `istoreos-kspeeder-domainfold-fetch/scripts/ksget.sh` only as a legacy-compatible wrapper.
+1. If the input is an external file URL, use `iStoreEnhance download --mode auto --json --events=ndjson -O <FILE> <URL>` or `kspeeder download --mode auto --json --events=ndjson -O <FILE> <URL>`; use `istoreos-kspeeder-domainfold-fetch/scripts/ksget.sh` only as a legacy-compatible wrapper.
 2. If the input is a Docker image pull, first run Docker space checks, then ensure `istoreenhance` is ready, then run the original `docker pull`.
 3. If the input is Docker Compose or an iStore Docker-style app install, route to `istoreos-docker-basics` first; that skill will require the KSpeeder readiness check before any pull-like action.
 4. If setup emits `need-confirmation:`, explain the install/UCI/service effect in user language, ask once, and rerun only after explicit confirmation.
@@ -26,7 +26,7 @@ Use the dispatcher when the user provided a concrete URL or image:
 SKILLS_DIR="${KAIPLUS_SKILLS_DIR:-${KAIPLUS_HOME:?KAIPLUS_HOME is required}/config/skills}"
 sh "$SKILLS_DIR/istoreos-download-acceleration/scripts/dispatch.sh" url -o /tmp/file.bin "https://github.com/..."
 sh "$SKILLS_DIR/istoreos-download-acceleration/scripts/dispatch.sh" docker-pull nginx:latest
-kspeeder download --json --events=ndjson -O /tmp/file.bin "https://github.com/..."
+iStoreEnhance download --mode auto --json --events=ndjson -O /tmp/file.bin "https://github.com/..."
 ```
 
 ## Boundaries
@@ -35,3 +35,5 @@ kspeeder download --json --events=ndjson -O /tmp/file.bin "https://github.com/..
 - Do not rewrite Docker image names manually. Let Docker use the configured registry mirror.
 - Do not change global `curl/wget/uclient-fetch` behavior.
 - Do not auto-start or install services unless the user has confirmed the specific effect.
+- For mise Node.js installs, prefer `MISE_NODE_MIRROR_URL=https://dl-node-unofficial.linkease.net:5443/` through `mise-istore`; do not start a separate download gateway process for the product path.
+- For npm global package installs, prefer `npm install -g <pkg> --registry=https://dl-npm.linkease.net:5443`; do not use `registry.npmmirror.com` when the user wants KSpeeder-owned adaptive selection.
