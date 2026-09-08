@@ -99,7 +99,21 @@ Run these on the target router, not on the AI host:
 
 For pip, keep one index URL. `dl-pypi` fetches canonical PyPI Simple metadata and rewrites `files.pythonhosted.org/packages/...` links to `dl-pypi-files`; `dl-pypi-files` then races compatible artifact candidates. Do not use `extra-index-url` for the default product path.
 
-### 3.4) Preferred unified entry: ksget (retry + fallback)
+### 3.4) Remote Homebrew acceleration
+
+Run these on the target machine that executes Homebrew, not on the AI host:
+
+- `eval "$(iStoreEnhance brew-env --mode free)"; brew install jq`
+
+Free mode only sets `HOMEBREW_API_DOMAIN=https://dl-homebrew-api.linkease.net:5443`. Homebrew API JSON is small, so `dl-homebrew-api` may fall back to DomainFold `admin_proxy` if direct and public API mirrors are slow or unavailable.
+
+For Plus users, bottle downloads can reuse the target machine's resident GHCR mirror:
+
+- `eval "$(iStoreEnhance brew-env --mode plus)"; brew install jq`
+
+Plus mode additionally sets `HOMEBREW_BOTTLE_DOMAIN=https://ghcr.linkease.net:5443/v2/homebrew/core`. Bottle traffic must not fall back to DomainFold/admin_proxy by default. Do not set `HOMEBREW_ARTIFACT_DOMAIN` unless a paid artifact policy exists.
+
+### 3.5) Preferred unified entry: ksget (retry + fallback)
 
 Use:
 
