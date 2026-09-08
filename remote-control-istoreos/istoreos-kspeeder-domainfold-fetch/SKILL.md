@@ -111,7 +111,7 @@ For Plus users, bottle downloads can reuse the target machine's resident GHCR mi
 
 - `eval "$(iStoreEnhance brew-env --mode plus)"; brew install jq`
 
-Plus mode additionally sets `HOMEBREW_BOTTLE_DOMAIN=https://ghcr.linkease.net:5443/v2/homebrew/core`. Bottle traffic must not fall back to DomainFold/admin_proxy by default. Do not set `HOMEBREW_ARTIFACT_DOMAIN` unless a paid artifact policy exists.
+Plus mode additionally sets `HOMEBREW_ARTIFACT_DOMAIN=https://ghcr.linkease.net:5443` so Homebrew keeps GHCR OCI paths like `/v2/homebrew/core/...` and routes bottle traffic through the existing GHCR registry mirror. Do not use `HOMEBREW_BOTTLE_DOMAIN` for GHCR-backed bottles; Homebrew 4 treats it as a legacy tarball root and falls back to default `ghcr.io` after 403/404. Bottle traffic must not fall back to DomainFold/admin_proxy by default.
 
 ### 3.5) Preferred unified entry: ksget (retry + fallback)
 
