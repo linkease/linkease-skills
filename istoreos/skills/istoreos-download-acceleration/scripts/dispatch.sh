@@ -5,6 +5,7 @@ usage() {
   cat >&2 <<'EOF'
 usage:
   dispatch.sh url [-o FILE|-O [FILE]] <URL>
+  dispatch.sh git-clone <REPOSITORY_URL> [DIRECTORY]
   dispatch.sh docker-pull <IMAGE>
 
 Environment:
@@ -95,9 +96,31 @@ dispatch_url_download() {
   exec sh "$ksget" "$url"
 }
 
+dispatch_git_clone() {
+  repo="${1:-}"
+  directory="${2:-}"
+  [ -n "$repo" ] || { usage; exit 2; }
+  [ "$#" -le 2 ] || { usage; exit 2; }
+  command -v git >/dev/null 2>&1 || need "git is not installed; install it before cloning a repository."
+
+  remap="$root/istoreos-kspeeder-domainfold-fetch/scripts/remap_url.sh"
+  [ -f "$remap" ] || need "KSpeeder remap script not found at $remap; upgrade the iStoreOS skills first."
+  accelerated_url="$(sh "$remap" "$repo")"
+  [ -n "$accelerated_url" ] || need "KSpeeder returned an empty Git repository URL."
+
+  echo "action: git clone via KSpeeder: $accelerated_url" >&2
+  if [ -n "$directory" ]; then
+    exec git clone -- "$accelerated_url" "$directory"
+  fi
+  exec git clone -- "$accelerated_url"
+}
+
 case "$mode" in
   url)
     dispatch_url_download "$@"
+    ;;
+  git-clone)
+    dispatch_git_clone "$@"
     ;;
   docker-pull)
     image="${1:-}"

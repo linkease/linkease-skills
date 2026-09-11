@@ -1,6 +1,6 @@
 ---
 name: istoreos-kspeeder-domainfold-fetch
-description: On iStoreOS/OpenWrt, when users download files from GitHub/Gist/GitLab/HuggingFace/package registries, use the resident iStoreEnhance/KSpeeder `download` command for adaptive direct-vs-accelerated download, with JSON diagnostics for AI follow-up.
+description: On iStoreOS/OpenWrt, accelerate files from supported external origins with the resident iStoreEnhance/KSpeeder `download` command, and remap public HTTPS Git repositories for native Git Smart HTTP cloning with diagnostics.
 ---
 
 ## Trigger
@@ -10,6 +10,7 @@ Use this skill whenever the user mentions any of:
 - `curl` / `wget` / `uclient-fetch` downloading from GitHub/Gist/GitLab/HuggingFace/package registries/other DomainFold-supported origins
 - “下载 / download / 拉取文件”且来源是常见外网站点（并且网络慢/失败/不稳定）
 - “GitHub 下载太慢/失败/连接超时”
+- “git clone 太慢/失败”或需要克隆 GitHub/GitLab 的公开 HTTPS 仓库
 - “把 github.com 自动转换为 gh.linkease.net”
 - “DomainFold / 域名加速 / /gh 前缀 / gh.linkease.net”
 
@@ -30,6 +31,8 @@ DomainFold 的核心是把 “origin URL（如 github.com）” 映射到 “入
 - `cmd/multi` 的下载网关使用 `https://dl-{routeKey}.linkease.net:5443/...`，例如 mise Node.js 使用 `https://dl-node-unofficial.linkease.net:5443/`
 
 DomainFold 的支持范围不止 GitHub：默认路由表还包含 GitLab、HuggingFace、常见包仓库，以及多种 AI API 域名映射（见 `kspeeder/domainfold/routes.go`）。
+
+Git 仓库不是单文件下载。KSpeeder 对 `info/refs?service=git-upload-pack`、`git-upload-pack` 等 Git Smart HTTP 请求保留流式语义，因此应先重映射仓库 URL，再由原生 `git` 交互；不要用 `download` 命令替代 `git clone`。
 
 证据见 `skills/istoreos-kspeeder-domainfold-fetch/references/kspeeder-domainfold-evidence.md`.
 
@@ -69,7 +72,22 @@ It will:
 4) Write to `.syn` first, then atomically rename to the requested output path.
 5) Keep the final result JSON on stdout and live progress events on stderr, including strategy, selected route, speed, bytes, and error kind.
 
-### 3.1) mise / Node.js download acceleration
+### 3.1) Public Git repository clone acceleration
+
+For a public HTTPS GitHub/GitLab repository, use the product dispatcher:
+
+- `sh "$SKILLS_DIR/istoreos-download-acceleration/scripts/dispatch.sh" git-clone "https://github.com/owner/repo.git" /path/to/repo`
+
+For diagnosis, separate remapping from cloning:
+
+- `sh "$SKILLS_DIR/istoreos-kspeeder-domainfold-fetch/scripts/remap_url.sh" "https://github.com/owner/repo.git"`
+- `git ls-remote "https://gh.linkease.net:5443/owner/repo.git" HEAD`
+
+The remap API also normalizes GitHub's `git@github.com:owner/repo.git` syntax, but that changes SSH to HTTPS. Use it only for public repositories. Do not proxy private credentials by default and do not modify global Git configuration.
+
+GitHub and GitLab are present in the current default routes. `gitea.com` is not `gitee.com`; Gitee is unsupported unless `GET /api/domainfold/routes` explicitly reports a `gitee.com` route.
+
+### 3.2) mise / Node.js download acceleration
 
 For Node.js installed by mise, prefer the resident smart-host route. It reuses the iStoreEnhance TLS port and does not require a separate gateway process:
 
@@ -79,7 +97,7 @@ For Node.js installed by mise, prefer the resident smart-host route. It reuses t
 
 The route maps only to the configured Node.js release upstream.
 
-### 3.2) mise / Go SDK and Go module acceleration
+### 3.3) mise / Go SDK and Go module acceleration
 
 For Go installed by mise, use the resident Go SDK smart-host route:
 
@@ -91,7 +109,7 @@ For Go module downloads, keep the default checksum database enabled and set GOPR
 
 `dl-golang` covers module metadata, module zip artifacts, and `/sumdb/sum.golang.org/...` checksum database requests. Do not set `GOSUMDB=off` unless the user explicitly asks to bypass Go checksum verification.
 
-### 3.3) mise / Python runtime and pip acceleration
+### 3.4) mise / Python runtime and pip acceleration
 
 For Python installed by mise, source the iStoreOS runtime environment first. It sets HOME/PATH for the Runtime directory and automatically enables GitHub Release URL replacement when the resident iStoreEnhance gateway is available:
 
@@ -105,7 +123,7 @@ For pip package downloads, keep a single index URL and let the gateway handle me
 
 `dl-pypi` fetches canonical PyPI Simple metadata and rewrites `files.pythonhosted.org/packages/...` links to `dl-pypi-files`. `dl-pypi-files` then races compatible artifact candidates. Do not use `extra-index-url` for the default product path.
 
-### 3.4) Homebrew acceleration
+### 3.5) Homebrew acceleration
 
 For Homebrew metadata/API acceleration, prefer the generated environment:
 
@@ -119,7 +137,7 @@ For Plus users, bottle downloads can reuse the resident GHCR mirror:
 
 Plus mode additionally sets `HOMEBREW_ARTIFACT_DOMAIN=https://ghcr.linkease.net:5443` so Homebrew keeps GHCR OCI paths like `/v2/homebrew/core/...` and routes bottle traffic through the existing GHCR registry mirror. Do not use `HOMEBREW_BOTTLE_DOMAIN` for GHCR-backed bottles; Homebrew 4 treats it as a legacy tarball root and falls back to default `ghcr.io` after 403/404. Bottle traffic must not fall back to DomainFold/admin_proxy by default.
 
-### 3.5) Legacy-compatible entry: ksget.sh
+### 3.6) Legacy-compatible entry: ksget.sh
 
 Use:
 
@@ -148,3 +166,4 @@ If you want to fetch via the entry URL directly, you must ensure `gh.linkease.ne
 
 - For mise/package-manager downloads, use `https://dl-{routeKey}.linkease.net:5443/...`.
 - Don’t modify `/etc/hosts` or DNS unless user explicitly asks.
+- Don’t use the file `download` command for Git repositories or write persistent/global Git URL rewrites.

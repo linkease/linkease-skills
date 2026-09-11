@@ -19,6 +19,7 @@ need_file "home-prompts.json"
 need_file "agents/system.md"
 need_file "agents/istoreos.md"
 need_file "TASK_ROUTING.md"
+need_file "tests/test_download_acceleration_dispatch.sh"
 
 need_skill "istoreos-system-task-router"
 need_skill "istoreos-download-acceleration"
@@ -36,5 +37,7 @@ for script in "$root"/skills/*/scripts/*.sh; do
   [ -f "$script" ] || continue
   sh -n "$script"
 done
+
+sh "$root/tests/test_download_acceleration_dispatch.sh"
 
 echo "ok: istoreos profile smoke passed"

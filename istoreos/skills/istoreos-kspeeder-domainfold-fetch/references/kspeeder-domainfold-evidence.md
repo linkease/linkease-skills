@@ -38,3 +38,16 @@ This is the most reliable way to “curl/wget GitHub through KSpeeder” on the 
   - `output`: entry URL like `https://gh.linkease.net:<tlsPort>/...`
   - `admin_path`: PathHub-style `/gh/...` path usable on admin port
   - Evidence: `kspeeder/cmd/multi/domainfold_remap_api.go`.
+
+## 5) Git Smart HTTP clone support and host boundaries
+
+- DomainFold detects Git Smart HTTP discovery and RPC requests, including:
+  - `*/info/refs?service=git-*`
+  - `*/git-upload-pack` and `*/git-receive-pack`
+  - `application/x-git-*` content types and `git/` user agents
+- These requests bypass multifetch probing so request bodies and streaming semantics remain intact.
+- Evidence: `kspeeder/domainfold/git_bypass.go` and `kspeeder/domainfold/git_bypass_test.go`.
+- The remap API normalizes GitHub SCP-style input such as `git@github.com:owner/repo.git` to an HTTPS GitHub URL before remapping. This is suitable for public clone discovery, not an authorization to proxy private SSH credentials.
+- Evidence: `kspeeder/cmd/multi/domainfold_remap_api.go`.
+- Default repository-host routes include `github.com`, `gitlab.com`, `gitea.com`, and `codeberg.org`. They do not include `gitee.com`; Gitee must not be inferred from Gitea.
+- Evidence: `kspeeder/domainfold/routes.go`.

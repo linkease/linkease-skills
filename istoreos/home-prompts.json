@@ -155,11 +155,11 @@
       "id": "istoreos-download-acceleration",
       "category": "advanced",
       "priority": 150,
-      "title": "下载 / 镜像拉取很慢",
-      "description": "处理 GitHub、Docker 镜像和大文件下载失败。",
+      "title": "下载 / Git 克隆 / 镜像拉取很慢",
+      "description": "处理 GitHub/GitLab 项目克隆、大文件和 Docker 镜像下载失败。",
       "risk": "medium",
       "recommendedSkill": "istoreos-download-acceleration",
-      "prompt": "帮我处理 iStoreOS 上 GitHub、GitLab、HuggingFace、大文件下载或 Docker 镜像拉取很慢/失败的问题。请优先使用 istoreos-download-acceleration 和 istoreos-kspeeder-domainfold-fetch，先检测当前加速链路和下载方式；安装加速组件、改 Docker registry 或改系统配置前必须先让我确认。"
+      "prompt": "帮我处理 iStoreOS 上 GitHub、GitLab 公开项目 git clone、HuggingFace、大文件下载或 Docker 镜像拉取很慢/失败的问题。请优先使用 istoreos-download-acceleration 和 istoreos-kspeeder-domainfold-fetch，区分 Git Smart HTTP、普通文件下载和 Docker registry 三条链路并先检测当前加速方式；安装加速组件、改 Docker registry 或改系统配置前必须先让我确认。"
     },
     {
       "id": "istoreos-source-introspect",
