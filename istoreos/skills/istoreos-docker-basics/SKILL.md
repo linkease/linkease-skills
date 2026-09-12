@@ -1,6 +1,11 @@
 ---
 name: istoreos-docker-basics
-description: iStoreOS Docker 可用性闭环（检测/安装/启停/验证/基础排错）；涉及镜像拉取/构建时，先确保 kspeeder/istoreenhance 已安装启用并生效（自动走加速闭环）。
+description: 检查、安装、启停和排查 iStoreOS Docker/dockerd 与容器；镜像或文件下载慢由下载加速能力处理，数据目录迁移由专用 skill 处理。
+triggers: Docker 异常, Docker 安装, Docker 启动失败, dockerd, 容器异常, compose, 容器服务
+negative-triggers: Docker 镜像慢, Docker 拉取失败, docker pull, Docker 数据目录, data_root
+auto-use: prefer
+needs-fresh-data: true
+cost: medium
 ---
 
 # iStoreOS Docker Basics

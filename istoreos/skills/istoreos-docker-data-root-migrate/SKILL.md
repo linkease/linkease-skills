@@ -1,6 +1,10 @@
 ---
 name: istoreos-docker-data-root-migrate
-description: iStoreOS/OpenWrt 安全迁移 Docker data_root（只在用户明确确认后执行；先备份 /etc/config/dockerd 与旧目录，再停 dockerd→迁移→改 UCI→重启→验证→可回滚）。
+description: 安全规划并迁移 iStoreOS Docker data_root；用于 Docker 占满 overlay、数据目录放错磁盘或用户明确要求迁移，执行前必须确认并保留回滚路径。
+triggers: Docker data_root, Docker 数据目录, Docker 迁移, Docker 占满 overlay, 容器数据迁移
+auto-use: prefer
+needs-fresh-data: true
+cost: high
 ---
 
 # Docker data_root Migration (Safe)

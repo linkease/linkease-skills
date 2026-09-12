@@ -1,6 +1,10 @@
 ---
 name: istoreos-luci-recovery
-description: iStoreOS/OpenWrt LuCI Web 界面故障恢复闭环：先只读诊断（uhttpd/rpcd/logread/空间/rom 基线），再软恢复（清缓存+重启服务），必要时重装 LuCI 核心包（需明确确认并建议先全量备份）。
+description: 诊断和恢复 iStoreOS LuCI 管理页面打不开、500、空白或登录循环；先只读采证，修改、重启或重装前必须确认。
+triggers: LuCI 打不开, LuCI 500, LuCI 空白, LuCI 登录循环, 管理页面打不开, Web 管理异常
+auto-use: prefer
+needs-fresh-data: true
+cost: medium
 ---
 
 # LuCI Recovery (iStoreOS/OpenWrt)

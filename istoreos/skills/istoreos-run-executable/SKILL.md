@@ -1,6 +1,10 @@
 ---
 name: istoreos-run-executable
-description: iStoreOS 处理 .run 可执行文件（本地或 URL）：先获取（可选，支持 KSpeeder 加速下载）、再只读检查（大小/类型/校验和/架构/空间），再强制备份提示与确认，最后用 is-opkg dotrun（可记录/可回滚）或直接 chmod+执行（可带参数）并留存日志。
+description: 安全检查并执行 iStoreOS 上的本地或 URL `.run` 文件；执行前验证来源、架构和空间，提示备份并要求明确确认。
+triggers: .run 文件, 执行 run, 运行安装包, dotrun, 可执行文件安装
+auto-use: prefer
+needs-fresh-data: true
+cost: high
 ---
 
 # iStoreOS `.run` Executable Handler

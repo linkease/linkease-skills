@@ -1,6 +1,9 @@
 ---
 name: istoreos-kspeeder-domainfold-fetch
 description: On iStoreOS/OpenWrt, accelerate files from supported external origins with the resident iStoreEnhance/KSpeeder `download` command, and remap public HTTPS Git repositories for native Git Smart HTTP cloning with diagnostics.
+invocation: manual
+auto-use: off
+cost: medium
 ---
 
 ## Trigger

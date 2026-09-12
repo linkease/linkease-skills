@@ -1,6 +1,9 @@
 ---
 name: istoreos-docker-acceleration-istoreenhance
 description: Docker 镜像下载慢/失败时的 iStoreOS 加速闭环（istoreenhance/kspeeder：安装→autoconf→启用→registry_mirrors→search API 验证→降级策略）。
+invocation: manual
+auto-use: off
+cost: medium
 ---
 
 # Docker Acceleration via iStoreEnhance (kspeeder)

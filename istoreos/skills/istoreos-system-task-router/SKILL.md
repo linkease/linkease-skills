@@ -1,37 +1,46 @@
 ---
 name: istoreos-system-task-router
-description: iStoreOS 用户任务分流入口；把应用安装、Docker、下载加速、磁盘空间、服务异常、LuCI 故障、日志诊断和备份恢复分配给对应闭环 skill。
+description: iStoreOS 用户问题的轻量分流与未知问题回退入口；任务含糊、跨多个子系统或没有明显专用 skill 时，选择一个主能力并从最小只读证据开始。
+triggers: iStoreOS, 路由器问题, 系统问题, 帮我检查, 帮我修复, 不知道怎么办, 不确定, 报错, 异常
+auto-use: suggest
+needs-fresh-data: true
+cost: low
 ---
 
 # iStoreOS System Task Router
 
-Use this skill when the user describes an iStoreOS problem in product language and the exact subsystem is not yet clear.
+Use this skill when an iStoreOS request is ambiguous, spans domains, or has no obvious specialist. It is a router, not a second implementation of each specialist.
 
-## First Split
+## Select One Primary Skill
 
 1. "安装/卸载/升级/找软件/应用商店" -> `istoreos-package-manager`.
-2. "Docker/容器/镜像/compose/拉取/构建" -> `istoreos-docker-basics`, then `istoreos-download-acceleration` before pull-like actions.
-3. "GitHub/GitLab/HuggingFace/下载链接/文件下载慢" -> `istoreos-download-acceleration`.
+2. "Docker/容器/dockerd/compose" -> `istoreos-docker-basics`; pull/download failures -> `istoreos-download-acceleration`.
+3. "GitHub/GitLab/HuggingFace/下载链接/git clone/文件下载慢" -> `istoreos-download-acceleration`.
 4. "磁盘满/overlay 满/数据目录/装到硬盘/迁移目录" -> `istoreos-storage-path`; Docker data-root migration routes to `istoreos-docker-data-root-migrate`.
-5. "服务打不开/端口不通/启动失败/开机自启" -> `istoreos-service-manager` plus `istoreos-logs-and-diagnostics`.
+5. "服务打不开/端口不通/启动失败/开机自启" -> `istoreos-service-manager`.
 6. "LuCI/网页管理/登录循环/500/空白页" -> `istoreos-luci-recovery`.
-7. "不知道配置字段/不确定脚本行为/要改配置" -> `istoreos-source-introspect` first.
+7. "不知道配置字段/不确定脚本行为/要改配置" -> internal helper `istoreos-source-introspect` first.
 8. "恢复/重置/升级/危险修改/迁移前" -> `istoreos-backup-restore` first.
+9. "网速慢/测速/延迟或抖动/NAT 类型/IPv6 是否可用/局域网测速" -> `istoreos-network-quality`; a specific slow download remains with `istoreos-download-acceleration`.
+10. "修改 IPv6 PD/relay/NAT 模式/硬盘不休眠/iStore 商店损坏/升级后内核模块异常" -> `istoreos-systools`.
+11. "安装 Python/Node.js/Go/选择运行时版本" -> `istoreos-mise-runtime`; if mise is absent, use `istoreos-package-manager` to install the iStore-integrated package first.
+12. ".run 文件/未知可执行安装包" -> `istoreos-run-executable`.
 
-## Operating Contract
+## Loading Budget
 
-- Start with read-only evidence when the subsystem is unclear.
+- Load only the selected primary skill first.
+- Load at most one internal helper at a time, and only when current evidence requires it. Common helpers are `istoreos-app-search`, `istoreos-logs-and-diagnostics`, and `istoreos-source-introspect`.
+- Do not load every skill named in a route or preload follow-up skills "just in case".
 - Do not expose skill names as choices unless the user asks for implementation details.
-- Before a dangerous action, state the command class, target config/service/path, expected effect, rollback or backup path, then ask for confirmation.
-- After every write, run a read-only verification step and report the result.
 
-## Minimum Evidence Set
+## Unknown-Problem Contract
 
-Collect only what is needed for the selected branch:
+- A missing specialist is not a reason to refuse the task or dump generic advice.
+- Collect only the smallest relevant read-only evidence: platform/version, affected process or interface, configuration ownership, resource state, and recent matching errors.
+- If ownership or behavior remains unclear, load `istoreos-source-introspect`; if a command failed, load `istoreos-logs-and-diagnostics`.
+- Form a falsifiable cause, propose the least invasive next step, and preserve the same confirmation and verification rules used by specialist skills.
+- Do not create a new skill during the incident. Add one later only when a workflow recurs and contains non-obvious reusable decisions.
 
-- System: `/etc/openwrt_release`, `ubus call system board`.
-- Storage: `df -h`, `df -i`, `mount`.
-- Packages: `command -v is-opkg`, `command -v opkg`, `opkg print-architecture`.
-- Docker: `docker version`, `/etc/init.d/dockerd status`, `uci -q show dockerd`.
-- KSpeeder: `uci -q show istoreenhance`, `/etc/init.d/istoreenhance status`.
-- Logs: `logread | tail -n 200` and service-specific filters when needed.
+## Safety
+
+Before a write, state the target, effect, interruption risk, verification, and rollback or backup path, then wait for explicit confirmation. After every write, verify read-only and report the evidence.

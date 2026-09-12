@@ -1,6 +1,10 @@
 ---
 name: istoreos-backup-restore
-description: iStoreOS 系统备份/恢复标准流程（系统 overlay 全量备份 + 沙箱 ext_overlay 支持 + iStore 应用列表备份）；用于危险操作前提醒备份，以及用户咨询“如何更安全使用 iStoreOS”时的备份/恢复指引。
+description: iStoreOS 系统备份、恢复与回滚闭环；用于备份配置或 overlay、恢复系统，以及迁移、重置等危险操作前建立可恢复点。
+triggers: 备份, 恢复, 回滚, 还原, 重置前, 迁移前, overlay 备份
+auto-use: prefer
+needs-fresh-data: true
+cost: medium
 ---
 
 # iStoreOS Backup / Restore

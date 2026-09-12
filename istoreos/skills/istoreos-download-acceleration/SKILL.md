@@ -1,6 +1,11 @@
 ---
 name: istoreos-download-acceleration
-description: iStoreOS 下载加速总入口；把 Docker 镜像/Compose、外部文件与包制品、公开 HTTPS Git 仓库克隆分流到 KSpeeder/iStoreEnhance 对应的 registry mirror、DomainFold 下载或 Git Smart HTTP 链路。
+description: iStoreOS 下载加速总入口；区分 Docker 镜像、外部文件/包制品和公开 HTTPS Git 仓库三条链路，不用于宽带测速或普通网络质量诊断。
+triggers: 下载慢, 拉取失败, 拉镜像失败, 镜像下载慢, docker pull, GitHub 下载, GitLab 下载, HuggingFace, git clone, 镜像加速, 文件下载失败
+negative-triggers: 网速慢, 网络测速, 宽带速度, 延迟测试, 局域网测速
+auto-use: prefer
+needs-fresh-data: true
+cost: medium
 ---
 
 # iStoreOS Download Acceleration
@@ -37,19 +42,11 @@ sh "$SKILLS_DIR/istoreos-download-acceleration/scripts/dispatch.sh" docker-pull 
 iStoreEnhance download --mode auto --json --events=ndjson -O /tmp/file.bin "https://github.com/..."
 ```
 
-## Git Dependencies and Build Downloads
+## When More Evidence Is Needed
 
-- Registry/index mirrors accelerate normal package artifacts, but they do not automatically cover dependencies declared as `git+https`, Git URLs, submodules, or build recipes using Git. Remap those repository URLs explicitly.
-- When a package manager must spawn Git internally, use a process-scoped `url.<accelerated-base>.insteadOf` environment/config only after deriving and validating the accelerated base from the remap/routes API. Never write a global Git rewrite from this skill.
-- For OpenWrt/iStoreOS build `make download`, distinguish archive URLs from Git source URLs. Archive downloads may use the file-download lane; Git sources need the Git lane. This only works when the build host can resolve and reach the router-backed KSpeeder TLS endpoint.
-
-## Git Diagnostics and FAQ
-
-- Check `git --version`, KSpeeder installation/service state, and the original repository protocol.
-- Run `istoreos-kspeeder-domainfold-fetch/scripts/remap_url.sh <REPOSITORY_URL>`, then `git ls-remote <OUTPUT_URL> HEAD` before a large clone when diagnosing DNS, TLS, port `5443`, authentication, or upstream errors.
-- GitHub and GitLab public HTTPS repositories are covered by the current default routes. Check `/api/domainfold/routes` for other hosts.
-- Gitee is not Gitea. The current default route set includes `gitea.com`, not `gitee.com`; do not promise Gitee acceleration unless the active routes explicitly contain it.
-- Private repositories and SSH credentials are not automatically converted. Keep their original transport unless the user explicitly approves an authenticated proxy design.
+- For Git DNS/TLS/remap failures, private-repository boundaries, legacy `ksget.sh`, or DomainFold route inspection, load the internal `istoreos-kspeeder-domainfold-fetch` helper.
+- A registry or package-index mirror does not cover `git+https`, submodules, or other Git protocol dependencies. Those still use the Git lane.
+- Check active routes before promising support for a host. In particular, Gitee is not Gitea.
 
 ## Boundaries
 
@@ -58,8 +55,4 @@ iStoreEnhance download --mode auto --json --events=ndjson -O /tmp/file.bin "http
 - Do not change global `curl/wget/uclient-fetch` behavior.
 - Do not write `git config --global url.*.insteadOf` or send private-repository credentials to an alias host by default.
 - Do not auto-start or install services unless the user has confirmed the specific effect.
-- For mise Node.js installs, prefer `MISE_NODE_MIRROR_URL=https://dl-node-unofficial.linkease.net:5443/` through `mise-istore`; do not start a separate download gateway process for the product path.
-- For mise Python installs, source `/lib/functions/mise.sh`, run `istore_runtime_env`, then use `mise-istore install python@<version>` so GitHub Release URL replacement can accelerate the Python runtime artifact through `dl-github`.
-- For pip package installs, prefer `PIP_INDEX_URL=https://dl-pypi.linkease.net:5443/simple/ python -m pip install <pkg>`; do not use `extra-index-url` for the default product path.
-- For npm global package installs, prefer `npm install -g <pkg> --registry=https://dl-npm.linkease.net:5443`; do not use `registry.npmmirror.com` when the user wants KSpeeder-owned adaptive selection.
-- For Homebrew installs, prefer `eval "$(iStoreEnhance brew-env --mode free)"` first. Free mode accelerates only Homebrew API metadata through `dl-homebrew-api`; Plus mode may add `HOMEBREW_ARTIFACT_DOMAIN=https://ghcr.linkease.net:5443` for GHCR-backed bottle OCI paths. Do not use `HOMEBREW_BOTTLE_DOMAIN` for GHCR-backed bottles, and do not default bottle/source/cask traffic to DomainFold/admin_proxy.
+- Runtime installation belongs to `istoreos-mise-runtime`; do not bypass its integrated paths or certificate policy with ad-hoc environment overrides.

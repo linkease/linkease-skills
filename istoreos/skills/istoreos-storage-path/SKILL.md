@@ -1,6 +1,11 @@
 ---
 name: istoreos-storage-path
-description: iStoreOS 选盘/选路径/空间诊断能力（输出 is-opkg autoconf 的 base path，并解释 Configs/Caches/Public/Downloads 派生关系）。
+description: 诊断 iStoreOS overlay、磁盘和挂载空间并选择持久化安装路径；用于系统盘满、应用装到硬盘或外接盘路径规划，不负责 Docker data_root 迁移。
+triggers: 磁盘满, 空间不足, overlay 满, 安装到硬盘, 安装到 U盘, 选择路径, 外接磁盘, 挂载空间
+negative-triggers: Docker data_root, Docker 数据目录迁移
+auto-use: prefer
+needs-fresh-data: true
+cost: low
 ---
 
 # iStoreOS Storage Path

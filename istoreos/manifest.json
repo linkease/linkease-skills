@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "profile": "istoreos",
   "title": "iStoreOS",
   "description": "KaiPlus running directly on an iStoreOS/OpenWrt device.",
