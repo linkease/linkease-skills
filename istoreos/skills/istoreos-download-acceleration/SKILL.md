@@ -4,6 +4,7 @@ description: iStoreOS 下载加速总入口；区分 Docker 镜像、外部文�
 triggers: 下载慢, 拉取失败, 拉镜像失败, 镜像下载慢, docker pull, GitHub 下载, GitLab 下载, HuggingFace, git clone, 镜像加速, 文件下载失败
 negative-triggers: 网速慢, 网络测速, 宽带速度, 延迟测试, 局域网测速
 auto-use: prefer
+routing-group: istoreos-primary
 needs-fresh-data: true
 cost: medium
 ---

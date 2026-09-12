@@ -1,0 +1,1 @@
+{"running":true,"start":1789173100,"stop":0,"exit_code":0,"command":"is-opkg 'AUTOCONF=qbittorrent enable=1' 'install' 'app-meta-qbittorrent'"}

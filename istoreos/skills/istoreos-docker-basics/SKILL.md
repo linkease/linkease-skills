@@ -4,6 +4,7 @@ description: 检查、安装、启停和排查 iStoreOS Docker/dockerd 与容器
 triggers: Docker 异常, Docker 安装, Docker 启动失败, dockerd, 容器异常, compose, 容器服务
 negative-triggers: Docker 镜像慢, Docker 拉取失败, docker pull, Docker 数据目录, data_root
 auto-use: prefer
+routing-group: istoreos-primary
 needs-fresh-data: true
 cost: medium
 ---

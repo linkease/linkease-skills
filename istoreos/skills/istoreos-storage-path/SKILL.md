@@ -4,6 +4,7 @@ description: 诊断 iStoreOS overlay、磁盘和挂载空间并选择持久化�
 triggers: 磁盘满, 空间不足, overlay 满, 安装到硬盘, 安装到 U盘, 选择路径, 外接磁盘, 挂载空间
 negative-triggers: Docker data_root, Docker 数据目录迁移
 auto-use: prefer
+routing-group: istoreos-primary
 needs-fresh-data: true
 cost: low
 ---
@@ -29,9 +30,10 @@ cost: low
    - 用户指定挂载点优先（需可写、空间足够）
    - 否则优先外置/数据盘（常见 `/mnt/<name>`）且空间充足
    - 最后才回退系统盘（并提示风险）
-3) 可写验证：`touch <base>/.istore_write_test && rm -f <base>/.istore_write_test`
+3) 默认只根据已存在目录和权限位筛选，不做写入。只有权限位证据不足且用户确认后，才用 `probe.sh` 做真实写入验证。
 4) 输出 `base path` + 解释派生目录
 
 ## 脚本
 
 - 自动选择 `base path`（stdout 输出路径，stderr 输出解释）：`SKILLS_DIR="${KAIPLUS_SKILLS_DIR:-${KAIPLUS_HOME:?KAIPLUS_HOME is required}/config/skills}"; sh "$SKILLS_DIR/istoreos-storage-path/scripts/detect.sh"`
+- 确认后做真实可写探测：`KAIPLUS_CONFIRMED=1 sh "$SKILLS_DIR/istoreos-storage-path/scripts/probe.sh" <absolute-base-path>`

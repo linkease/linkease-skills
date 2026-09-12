@@ -3,6 +3,7 @@ name: istoreos-source-introspect
 description: iStoreOS/OpenWrt 只读证据采集：定向读取 /etc/config、/etc/init.d 与 /usr/lib/lua/luci 相关源码片段（默认脱敏），用于未知问题定位与“以证据为准”的分流。
 invocation: manual
 auto-use: off
+needs-fresh-data: true
 cost: low
 ---
 

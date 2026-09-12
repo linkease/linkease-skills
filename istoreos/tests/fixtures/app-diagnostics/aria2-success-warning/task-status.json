@@ -1,0 +1,1 @@
+{"running":false,"start":1789172950,"stop":1789172956,"exit_code":0,"command":"is-opkg 'AUTOCONF=aria2 path='/mnt/vio3-1' enable=0' 'install' 'app-meta-aria2'"}

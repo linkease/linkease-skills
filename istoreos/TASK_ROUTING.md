@@ -4,7 +4,7 @@ This is the compact product-task map. Select one primary skill first; load a hel
 
 | User says | Primary skill | Helper only if needed |
 | --- | --- | --- |
-| 安装/卸载/升级应用或软件 | `istoreos-package-manager` | `istoreos-app-search`, `istoreos-service-manager` |
+| 安装/卸载/升级应用或软件 | `istoreos-package-manager` | `istoreos-app-search`, `istoreos-app-diagnostics`, `istoreos-service-manager` |
 | Docker 镜像慢、拉取失败、compose up | `istoreos-download-acceleration` | `istoreos-docker-basics`, `istoreos-docker-acceleration-istoreenhance` |
 | GitHub/GitLab 文件下载或公开 Git 项目克隆慢 | `istoreos-download-acceleration` | `istoreos-kspeeder-domainfold-fetch` |
 | 磁盘满、overlay 满、装到硬盘 | `istoreos-storage-path` | `istoreos-docker-data-root-migrate`, `istoreos-backup-restore` |

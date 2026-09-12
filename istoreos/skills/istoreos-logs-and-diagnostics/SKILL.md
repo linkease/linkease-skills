@@ -3,6 +3,7 @@ name: istoreos-logs-and-diagnostics
 description: iStoreOS 故障诊断最小信息集与分流（opkg/is-opkg、init.d、df/mount、docker/dockerd、istoreenhance、DNS/网络）；用于失败时先采证据再结论。
 invocation: manual
 auto-use: off
+needs-fresh-data: true
 cost: low
 ---
 

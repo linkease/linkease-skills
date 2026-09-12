@@ -1,0 +1,1 @@
+{"running":false,"start":1789173200,"stop":1789173204,"exit_code":1,"command":"is-opkg 'AUTOCONF=alist enable=1' 'install' 'app-meta-alist'"}

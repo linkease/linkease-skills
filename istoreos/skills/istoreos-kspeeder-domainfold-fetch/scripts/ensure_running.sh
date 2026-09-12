@@ -1,7 +1,9 @@
 #!/bin/sh
 set -eu
 
-service="/etc/init.d/istoreenhance"
+root="${ISTOREOS_ROOT:-}"
+root="${root%/}"
+service="$root/etc/init.d/istoreenhance"
 
 is_running() {
   if command -v pidof >/dev/null 2>&1; then
@@ -24,6 +26,11 @@ if [ ! -x "$service" ]; then
   exit 2
 fi
 
+if [ "${KAIPLUS_CONFIRMED:-}" != "1" ]; then
+  echo "need-confirmation: enabling and starting iStoreEnhance changes startup state; rerun with KAIPLUS_CONFIRMED=1 after user confirmation" >&2
+  exit 2
+fi
+
 echo "action: enable service (best-effort): $service enable" >&2
 "$service" enable >/dev/null 2>&1 || true
 
@@ -40,4 +47,3 @@ echo "diagnostics to run:" >&2
 echo "- $service status" >&2
 echo "- logread | tail -n 200" >&2
 exit 1
-

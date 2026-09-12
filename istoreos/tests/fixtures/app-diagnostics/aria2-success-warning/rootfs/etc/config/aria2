@@ -1,0 +1,2 @@
+config aria2 'main'
+	option enabled '0'

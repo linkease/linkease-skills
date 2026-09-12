@@ -3,6 +3,7 @@ name: istoreos-system-task-router
 description: iStoreOS 用户问题的轻量分流与未知问题回退入口；任务含糊、跨多个子系统或没有明显专用 skill 时，选择一个主能力并从最小只读证据开始。
 triggers: iStoreOS, 路由器问题, 系统问题, 帮我检查, 帮我修复, 不知道怎么办, 不确定, 报错, 异常
 auto-use: suggest
+routing-group: istoreos-primary
 needs-fresh-data: true
 cost: low
 ---
@@ -36,8 +37,10 @@ Use this skill when an iStoreOS request is ambiguous, spans domains, or has no o
 ## Unknown-Problem Contract
 
 - A missing specialist is not a reason to refuse the task or dump generic advice.
-- Collect only the smallest relevant read-only evidence: platform/version, affected process or interface, configuration ownership, resource state, and recent matching errors.
+- Start with one bounded evidence card: `sh "$SKILLS_DIR/istoreos-system-task-router/scripts/observe.sh" <auto|network|storage|service|package|docker|kai> [subject]`. Select one mode; do not run all modes.
+- The observer is read-only, rejects unsafe identifiers, redacts common credentials, and caps output at 8 KB. Collect more only when the first card supports a falsifiable hypothesis.
 - If ownership or behavior remains unclear, load `istoreos-source-introspect`; if a command failed, load `istoreos-logs-and-diagnostics`.
+- For development/source questions, read only the matching row in `data/code-ownership.tsv`, then inspect that repository path at its current revision. Repository knowledge is not device evidence.
 - Form a falsifiable cause, propose the least invasive next step, and preserve the same confirmation and verification rules used by specialist skills.
 - Do not create a new skill during the incident. Add one later only when a workflow recurs and contains non-obvious reusable decisions.
 

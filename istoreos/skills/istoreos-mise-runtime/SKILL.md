@@ -4,6 +4,7 @@ description: 在 iStoreOS 上检查、安装和验证 Python、Node.js 或 Go �
 triggers: 安装 Python, 安装 Node.js, 安装 node, 安装 Go, 安装 golang, Python 版本, Node.js 版本, Go 版本, 开发环境, 运行环境
 negative-triggers: 安装 OpenWrt 软件包, 安装 Docker, 编译 KaiPlus
 auto-use: prefer
+routing-group: istoreos-primary
 needs-fresh-data: true
 cost: medium
 ---

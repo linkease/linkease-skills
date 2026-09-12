@@ -3,6 +3,8 @@ set -eu
 
 svc="${1:-}"
 cfg="${2:-}"
+root="${ISTOREOS_ROOT:-}"
+root="${root%/}"
 
 need() {
   echo "need-confirmation: $*" >&2
@@ -16,6 +18,18 @@ fail() {
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
+valid_identifier() {
+  value="$1"
+  case "$value" in
+    [A-Za-z0-9]*) ;;
+    *) return 1 ;;
+  esac
+  case "$value" in
+    *[!A-Za-z0-9._+-]*|*..*) return 1 ;;
+  esac
+  return 0
+}
+
 if [ -z "$svc" ]; then
   echo "usage: $0 <service> [uci_config]" >&2
   exit 2
@@ -25,8 +39,15 @@ if [ -z "$cfg" ]; then
   cfg="$svc"
 fi
 
-init="/etc/init.d/$svc"
-conf="/etc/config/$cfg"
+if ! valid_identifier "$svc" || ! valid_identifier "$cfg"; then
+  echo "invalid identifier: service and UCI config names may contain only letters, digits, dot, underscore, plus, or hyphen; traversal is not allowed" >&2
+  exit 2
+fi
+
+[ "${KAIPLUS_CONFIRMED:-}" = "1" ] || need "enabling/restarting service '$svc' may change startup state and briefly interrupt it; rerun with KAIPLUS_CONFIRMED=1 after user confirmation"
+
+init="$root/etc/init.d/$svc"
+conf="$root/etc/config/$cfg"
 
 if [ ! -x "$init" ]; then
   need "init script not found: $init (confirm service name, or check /etc/init.d/)"

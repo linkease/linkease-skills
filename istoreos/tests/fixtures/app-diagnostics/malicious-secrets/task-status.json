@@ -1,0 +1,1 @@
+{"running":false,"start":1789173300,"stop":1789173305,"exit_code":1,"command":"is-opkg 'AUTOCONF=alist token=fixture-secret-do-not-use enable=1' 'install' 'app-meta-alist'"}

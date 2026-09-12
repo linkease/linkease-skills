@@ -1,0 +1,4 @@
+Installing app-meta-transmission.
+Collected errors:
+ * pkg_hash_check_unresolved: cannot find dependency docker-deps for app-meta-transmission
+ * opkg_install_cmd: Cannot install package app-meta-transmission.

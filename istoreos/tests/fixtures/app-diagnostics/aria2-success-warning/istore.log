@@ -1,0 +1,7 @@
+Installing app-meta-aria2 (1.0.0-r7) to root...
+Configuring app-meta-aria2.
+/usr/libexec/istorea/aria2.sh: luci18n2name: bad substitution
+uci: Parse error (invalid command) at line 1, byte 0
+Auto configure aria2
+Add 75 trackers
+Configuration file '/etc/config/aria2' differs from the package version.

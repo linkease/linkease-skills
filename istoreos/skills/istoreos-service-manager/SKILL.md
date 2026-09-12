@@ -4,6 +4,7 @@ description: 检查和管理 iStoreOS init.d 服务及对应 UCI 启用状态；
 triggers: 服务没启动, 服务启动失败, 服务状态, 开机自启, 端口没监听, 安装后没生效, init.d
 negative-triggers: LuCI 打不开, LuCI 500, Docker 数据目录
 auto-use: prefer
+routing-group: istoreos-primary
 needs-fresh-data: true
 cost: medium
 ---
@@ -16,10 +17,10 @@ cost: medium
 
 ## 一键确保（推荐）
 
-- `SKILLS_DIR="${KAIPLUS_SKILLS_DIR:-${KAIPLUS_HOME:?KAIPLUS_HOME is required}/config/skills}"; sh "$SKILLS_DIR/istoreos-service-manager/scripts/ensure.sh" <service> [uci_config]`
+- 先向用户说明目标服务、启用状态变化、短暂中断、验证和回滚方式；确认后执行：`KAIPLUS_CONFIRMED=1 sh "$SKILLS_DIR/istoreos-service-manager/scripts/ensure.sh" <service> [uci_config]`
 
 约定：
-- `<service>`：`/etc/init.d/<service>` 的名字
+- `<service>`：`/etc/init.d/<service>` 的名字；脚本拒绝路径、`..` 和非标识符输入
 - `[uci_config]`：默认等于 `<service>`，也可以指定实际 UCI config 名（对应 `/etc/config/<uci_config>`）
 
 ## 工作流（手动版）

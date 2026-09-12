@@ -3,6 +3,7 @@ name: istoreos-run-executable
 description: 安全检查并执行 iStoreOS 上的本地或 URL `.run` 文件；执行前验证来源、架构和空间，提示备份并要求明确确认。
 triggers: .run 文件, 执行 run, 运行安装包, dotrun, 可执行文件安装
 auto-use: prefer
+routing-group: istoreos-primary
 needs-fresh-data: true
 cost: high
 ---

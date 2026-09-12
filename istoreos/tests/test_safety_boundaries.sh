@@ -1,0 +1,77 @@
+#!/bin/sh
+set -eu
+
+root="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd -P)"
+collect="$root/skills/istoreos-source-introspect/scripts/collect.sh"
+ensure="$root/skills/istoreos-service-manager/scripts/ensure.sh"
+detect="$root/skills/istoreos-storage-path/scripts/detect.sh"
+probe="$root/skills/istoreos-storage-path/scripts/probe.sh"
+ensure_kspeeder="$root/skills/istoreos-kspeeder-domainfold-fetch/scripts/ensure_running.sh"
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT HUP INT TERM
+rootfs="$tmp/rootfs"
+mkdir -p "$rootfs/etc/init.d" "$rootfs/etc/config" "$rootfs/rom/etc/init.d" "$rootfs/usr/lib/lua/luci"
+
+if ISTOREOS_ROOT="$rootfs" sh "$collect" '../shadow' >"$tmp/out" 2>"$tmp/err"; then
+  echo 'failed: source introspection accepted a traversal name' >&2
+  exit 1
+fi
+grep -q 'invalid identifier' "$tmp/err"
+
+printf '%s\n' '#!/bin/sh' 'TOKEN=source-secret' 'endpoint="https://alice:secret@example.invalid/api"' >"$rootfs/etc/init.d/demo"
+out="$(ISTOREOS_ROOT="$rootfs" sh "$collect" demo 2>/dev/null)"
+if printf '%s\n' "$out" | grep -qE 'source-secret|alice:secret'; then
+  echo 'failed: source introspection leaked a credential' >&2
+  exit 1
+fi
+printf '%s\n' "$out" | grep -q '\*\*\*'
+
+printf '%s\n' '#!/bin/sh' 'printf "%s\\n" "$1" >>"${SERVICE_MARKER:?}"' >"$rootfs/etc/init.d/demo"
+chmod +x "$rootfs/etc/init.d/demo"
+if ISTOREOS_ROOT="$rootfs" SERVICE_MARKER="$tmp/service.marker" sh "$ensure" demo >"$tmp/out" 2>"$tmp/err"; then
+  echo 'failed: service mutation ran without confirmation' >&2
+  exit 1
+fi
+[ ! -e "$tmp/service.marker" ]
+grep -q 'KAIPLUS_CONFIRMED=1' "$tmp/err"
+
+if KAIPLUS_CONFIRMED=1 ISTOREOS_ROOT="$rootfs" SERVICE_MARKER="$tmp/service.marker" sh "$ensure" '../demo' >"$tmp/out" 2>"$tmp/err"; then
+  echo 'failed: service manager accepted a traversal name' >&2
+  exit 1
+fi
+grep -q 'invalid identifier' "$tmp/err"
+
+KAIPLUS_CONFIRMED=1 ISTOREOS_ROOT="$rootfs" SERVICE_MARKER="$tmp/service.marker" sh "$ensure" demo >/dev/null 2>&1
+grep -qx 'enable' "$tmp/service.marker"
+grep -qx 'restart' "$tmp/service.marker"
+grep -qx 'status' "$tmp/service.marker"
+
+rm -f "$tmp/service.marker"
+cp "$rootfs/etc/init.d/demo" "$rootfs/etc/init.d/istoreenhance"
+if ISTOREOS_ROOT="$rootfs" SERVICE_MARKER="$tmp/service.marker" sh "$ensure_kspeeder" >"$tmp/out" 2>"$tmp/err"; then
+  echo 'failed: iStoreEnhance service mutation ran without confirmation' >&2
+  exit 1
+fi
+[ ! -e "$tmp/service.marker" ]
+grep -q 'KAIPLUS_CONFIRMED=1' "$tmp/err"
+
+missing="$tmp/not-created/by-detect"
+if KAIPLUS_HOME="$missing" sh "$detect" >"$tmp/out" 2>"$tmp/err"; then
+  echo 'failed: read-only detection unexpectedly accepted a missing directory' >&2
+  exit 1
+fi
+[ ! -e "$missing" ]
+
+if sh "$probe" "$missing" >"$tmp/out" 2>"$tmp/err"; then
+  echo 'failed: writable-path probe ran without confirmation' >&2
+  exit 1
+fi
+[ ! -e "$missing" ]
+grep -q 'KAIPLUS_CONFIRMED=1' "$tmp/err"
+
+KAIPLUS_CONFIRMED=1 sh "$probe" "$missing" >/dev/null
+[ -d "$missing" ]
+[ ! -e "$missing/.istore_write_test" ]
+
+echo 'ok: safety boundaries reject unsafe names, redact secrets, and gate writes'

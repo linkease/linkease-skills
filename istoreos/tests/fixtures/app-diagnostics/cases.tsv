@@ -1,0 +1,6 @@
+# case	requested_app	expected_outcome	expected_code	expected_correlation
+aria2-success-warning	aria2	success_with_warnings	LOG_WARNINGS	exact
+dependency-failure	transmission	dependency_failed	DEPENDENCY_MISSING	exact
+running	qbittorrent	in_progress	TASK_RUNNING	exact
+mismatch	aria2	unknown	TASK_APP_MISMATCH	mismatch
+malicious-secrets	alist	autoconf_failed	AUTOCONF_FAILED	exact

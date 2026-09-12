@@ -1,0 +1,16 @@
+name: iStoreOS profile
+
+on:
+  pull_request:
+  push:
+    paths:
+      - 'istoreos/**'
+      - '.github/workflows/istoreos-profile.yml'
+
+jobs:
+  offline-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run iStoreOS profile and diagnostics contracts
+        run: sh istoreos/tests/test_app_diagnostics_release.sh

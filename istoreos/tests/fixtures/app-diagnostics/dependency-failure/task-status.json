@@ -1,0 +1,1 @@
+{"running":false,"start":1789173000,"stop":1789173004,"exit_code":1,"command":"is-opkg 'AUTOCONF=transmission enable=1' 'install' 'app-meta-transmission'"}

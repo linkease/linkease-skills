@@ -3,14 +3,10 @@ set -eu
 
 say() { echo "$*" >&2; }
 
-ok() {
+candidate_ok() {
   base="$1"
   [ -n "$base" ] || return 1
-  mkdir -p "$base" 2>/dev/null || return 1
-  t="$base/.istore_write_test.$$"
-  : >"$t" 2>/dev/null || return 1
-  rm -f "$t" 2>/dev/null || true
-  return 0
+  [ -d "$base" ] && [ -w "$base" ]
 }
 
 chosen=""
@@ -26,7 +22,7 @@ while IFS="$tab" read -r mp avail; do
   [ -n "${mp:-}" ] || continue
   [ -n "${avail:-}" ] || continue
   [ "$avail" -ge 1048576 ] 2>/dev/null || continue
-  ok "$mp" || continue
+  candidate_ok "$mp" || continue
   if [ "$avail" -gt "$best_avail" ] 2>/dev/null; then
     best_avail="$avail"
     chosen="$mp"
@@ -52,11 +48,11 @@ base_from_kaiplus_home() {
 }
 
 fallback="$(base_from_kaiplus_home || true)"
-if [ -n "$fallback" ] && ok "$fallback"; then
+if [ -n "$fallback" ] && candidate_ok "$fallback"; then
   say "picked: base path=$fallback (derived from KAIPLUS_HOME)"
   echo "$fallback"
   exit 0
 fi
 
-say "failed: cannot auto-pick a writable base path; please choose a mounted data path or set KAIPLUS_HOME on external storage."
+say "failed: cannot auto-pick an existing writable base path; choose a mounted data path or set KAIPLUS_HOME on external storage. Use probe.sh only after confirmation when a real write test is required."
 exit 1

@@ -1,0 +1,13 @@
+{
+  "success": 0,
+  "result": {
+    "total": 5,
+    "apps": [
+      {"name":"fastnet","title":"FastNet 网络测速","entry":"/cgi-bin/luci/admin/services/fastnet","version":"0.7.7","description":"网络测速与网络诊断 Web UI","tags":["networking","service"],"depends":["fastnet","luci-app-fastnet"],"arch":["x86_64","aarch64"],"autoconf":{"enable":"1"}},
+      {"name":"aria2","title":"Aria2 下载工具","entry":"/cgi-bin/luci/admin/services/aria2","description":"多协议下载管理器","tags":["download"],"depends":["aria2","luci-app-aria2"],"arch":["all"],"autoconf":{"path":"","enable":"0"}},
+      {"name":"alist","title":"AList","entry":"/cgi-bin/luci/admin/services/alist","description":"支持多种存储的文件列表程序","tags":["nas","docker"],"depends":["docker-deps","luci-app-alist"],"arch":["x86_64","aarch64"],"autoconf":null},
+      {"name":"cups","title":"CUPS 打印服务","entry":"/cgi-bin/luci/admin/services/cups","description":"网络打印服务","tags":["service"],"depends":["cups"],"arch":["all"],"autoconf":null},
+      {"name":"immich","title":"Immich","entry":"/cgi-bin/luci/admin/services/immich","description":"自托管照片和视频管理方案","tags":["multimedia","docker"],"depends":["docker-deps","luci-app-immich"],"arch":["all"],"autoconf":null}
+    ]
+  }
+}
