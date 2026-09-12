@@ -30,9 +30,11 @@ collect_case malicious-secrets alist >"$tmp/redacted"
 grep -F 'Authorization: Bearer [REDACTED]' "$tmp/redacted" >/dev/null
 grep -F 'api_key=[REDACTED]' "$tmp/redacted" >/dev/null
 grep -F 'password=[REDACTED]' "$tmp/redacted" >/dev/null
+grep -F '[UNTRUSTED_INSTRUCTION_REDACTED]' "$tmp/redacted" >/dev/null
 if grep -F 'fixture-token-do-not-use' "$tmp/redacted" >/dev/null ||
    grep -F 'fixture-key-do-not-use' "$tmp/redacted" >/dev/null ||
-   grep -F 'fixture-password-do-not-use' "$tmp/redacted" >/dev/null; then
+   grep -F 'fixture-password-do-not-use' "$tmp/redacted" >/dev/null ||
+   grep -Fi 'IGNORE ALL PREVIOUS INSTRUCTIONS' "$tmp/redacted" >/dev/null; then
   echo "failed: collector leaked fixture credentials" >&2
   exit 1
 fi

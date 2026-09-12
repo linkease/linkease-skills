@@ -22,9 +22,19 @@ case "$server" in */v1) api="$server/chat/completions" ;; *) api="$server/v1/cha
 
 call_model() {
   system="$1"; user="$2"; tool_name="$3"; properties="$4"
-  payload="$(jq -cn --arg model "$model" --arg system "$system" --arg user "$user" --arg tool "$tool_name" --argjson properties "$properties" '{model:$model,messages:[{role:"system",content:$system},{role:"user",content:$user}],tools:[{type:"function",function:{name:$tool,description:"Return the requested structured decision.",parameters:{type:"object",properties:$properties,required:($properties|keys),additionalProperties:false}}}],tool_choice:{type:"function",function:{name:$tool}},temperature:0,max_tokens:512}')"
-  response="$(curl -fsS --max-time 60 -H "Authorization: Bearer $key" -H 'Content-Type: application/json' --data-binary "$payload" "$api")" || return 1
-  printf '%s' "$response" | jq -c '.choices[0].message.tool_calls[0].function.arguments | if type == "string" then fromjson else . end'
+  payload="$(jq -cn --arg model "$model" --arg system "$system" --arg user "$user" --arg tool "$tool_name" --argjson properties "$properties" '{model:$model,messages:[{role:"system",content:$system},{role:"user",content:$user}],tools:[{type:"function",function:{name:$tool,description:"Return the requested structured decision.",parameters:{type:"object",properties:$properties,required:($properties|keys),additionalProperties:false}}}],tool_choice:{type:"function",function:{name:$tool}},temperature:0,max_tokens:1024}')"
+  attempt=1
+  while [ "$attempt" -le 3 ]; do
+    response="$(curl -fsS --max-time 60 -H "Authorization: Bearer $key" -H 'Content-Type: application/json' --data-binary "$payload" "$api")" || response=
+    decision="$(printf '%s' "$response" | jq -ce '.choices[0].message.tool_calls[0].function.arguments | if type == "string" then fromjson else . end' 2>/dev/null)" || decision=
+    if [ -n "$decision" ]; then
+      printf '%s\n' "$decision"
+      return 0
+    fi
+    echo "retry: incomplete model tool response ($attempt/3)" >&2
+    attempt=$((attempt + 1))
+  done
+  return 1
 }
 
 package_instructions="$(cat "$root/skills/istoreos-package-manager/SKILL.md")"

@@ -28,6 +28,8 @@
         "exit_code": { "type": ["integer", "null"] },
         "action": { "type": ["string", "null"] },
         "package": { "type": ["string", "null"] },
+        "enable_requested": { "type": ["integer", "null"], "enum": [0, 1, null] },
+        "target_path": { "type": ["string", "null"] },
         "started_at": { "type": ["integer", "null"] },
         "stopped_at": { "type": ["integer", "null"] },
         "age_seconds": { "type": ["integer", "null"], "minimum": 0 }

@@ -48,6 +48,8 @@ printf '"correlation":'; json_string "$correlation"; printf ','
 printf '"exit_code":'; json_nullable_int "$(field "$tmp/collected" exit_code)"; printf ','
 printf '"action":'; json_nullable_string "$(field "$tmp/collected" action)"; printf ','
 printf '"package":'; json_nullable_string "$task_package"; printf ','
+printf '"enable_requested":'; json_nullable_int "$(field "$tmp/collected" enable_requested)"; printf ','
+printf '"target_path":'; json_nullable_string "$(field "$tmp/collected" target_path)"; printf ','
 printf '"started_at":'; json_nullable_int "$(field "$tmp/collected" start)"; printf ','
 printf '"stopped_at":'; json_nullable_int "$(field "$tmp/collected" stop)"; printf ','
 printf '"age_seconds":'; json_nullable_int "$(field "$tmp/collected" age_seconds)"; printf '},'
@@ -81,6 +83,9 @@ printf '"next":{"skill":'; json_nullable_string "$next_skill"; printf ',"detail"
 printf '"limits":{"historical_log_available":%s,"log_truncated":%s,"untrusted_log":true}' "$historical" "$(field "$tmp/collected" log_truncated)"
 if [ -n "$detail_phase" ]; then
   sed -n '/^--LOG--$/,$p' "$tmp/collected" | sed '1d' | "$script_dir/detail-log.sh" "$detail_phase" >"$tmp/detail-log"
+  if [ "$(field "$tmp/classified" outcome)" = unknown ]; then
+    "$script_dir/system-log.sh" "${app:-unknown}" >>"$tmp/detail-log"
+  fi
   printf ',"detail":{"phase":'; json_string "$detail_phase"; printf ',"log_excerpt":'; quote <"$tmp/detail-log"; printf '}'
 fi
 printf '}\n'

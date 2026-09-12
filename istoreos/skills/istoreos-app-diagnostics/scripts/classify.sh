@@ -20,8 +20,9 @@ log="$(sed -n '/^--LOG--$/,$p' "$input" | sed '1d')"
 outcome=unknown
 code=NO_RECENT_TASK
 confidence=low
-next_skill=
-summary='没有可归因于目标应用的近期 iStore 安装任务。'
+  next_skill=
+  next_skill=istoreos-logs-and-diagnostics
+  summary='没有可归因于目标应用的近期 iStore 安装任务；请继续采集该应用的受限运行日志。'
 
 if [ "$correlation" = mismatch ]; then
   code=TASK_APP_MISMATCH
@@ -93,7 +94,12 @@ if [ -n "$state_input" ] && [ "$correlation" = exact ] && [ "$state" = finished 
   package_installed="$(state_value package_installed)"
   autoconf_present="$(state_value autoconf_present)"
   target_path_available="$(state_value target_path_available)"
+  init_script_present="$(state_value init_script_present)"
+  istorec_present="$(state_value istorec_present)"
+  service_state="$(state_value service_state)"
+  container_state="$(state_value container_state)"
   autoconf_requested="$(value_of autoconf_requested)"
+  enable_requested="$(value_of enable_requested)"
   if [ "$package_installed" = false ]; then
     outcome=package_install_failed
     code=APP_NOT_INSTALLED
@@ -112,6 +118,27 @@ if [ -n "$state_input" ] && [ "$correlation" = exact ] && [ "$state" = finished 
     confidence=high
     next_skill=istoreos-storage-path
     summary='自动配置使用的目标路径当前不可用。'
+  elif [ "$enable_requested" = 0 ] && {
+    { [ "$init_script_present" = true ] && [ -n "$service_state" ] && ! printf '%s\n' "$service_state" | grep -Eiq '(^|[^a-z])(running|active|up)([^a-z]|$)'; } ||
+    { [ "$istorec_present" = true ] && [ -n "$container_state" ] && ! printf '%s\n' "$container_state" | grep -Eiq '^(running|up)$'; }
+  }; then
+    outcome=success
+    code=EXPECTED_STOPPED
+    confidence=high
+    next_skill=
+    summary='用户请求 enable=0，服务或容器停止属于预期状态。'
+  elif [ "$enable_requested" = 1 ] && [ "$istorec_present" = true ] && [ -n "$container_state" ] && ! printf '%s\n' "$container_state" | grep -Eiq '^(running|up)$'; then
+    outcome=runtime_failed
+    code=CONTAINER_NOT_RUNNING
+    confidence=high
+    next_skill=istoreos-docker-basics
+    summary='安装与自动配置已完成，但请求启用的容器当前未运行。'
+  elif [ "$enable_requested" = 1 ] && [ "$init_script_present" = true ] && [ -n "$service_state" ] && ! printf '%s\n' "$service_state" | grep -Eiq '(^|[^a-z])(running|active|up)([^a-z]|$)'; then
+    outcome=runtime_failed
+    code=SERVICE_NOT_RUNNING
+    confidence=high
+    next_skill=istoreos-service-manager
+    summary='安装与自动配置已完成，但请求启用的服务当前未运行。'
   fi
 fi
 
