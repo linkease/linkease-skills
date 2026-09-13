@@ -1,0 +1,38 @@
+{
+  "$schema": "./schemas/catalog.schema.json",
+  "schemaVersion": 1,
+  "name": "linkease-device-skills",
+  "defaultPolicy": {
+    "installAll": false
+  },
+  "presets": [
+    {
+      "id": "istoreos-on-device",
+      "title": "Use an agent on an iStoreOS device",
+      "platform": "istoreos",
+      "mode": "on-device",
+      "aliases": [
+        "iStoreOS on device",
+        "在 iStoreOS 上使用",
+        "安装到 iStoreOS"
+      ],
+      "path": "istoreos",
+      "skillsRoot": "skills",
+      "legacyPath": true
+    },
+    {
+      "id": "istoreos-remote-control",
+      "title": "Control an iStoreOS device remotely",
+      "platform": "istoreos",
+      "mode": "remote-control",
+      "aliases": [
+        "remote control iStoreOS",
+        "远程控制 iStoreOS",
+        "SSH 控制软路由"
+      ],
+      "path": "remote-control-istoreos",
+      "skillsRoot": ".",
+      "legacyPath": true
+    }
+  ]
+}

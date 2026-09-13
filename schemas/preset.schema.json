@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/linkease/linkease-skills/schemas/preset.schema.json",
+  "title": "LinkEase third-party installation preset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "platform", "mode", "aliases", "path", "skillsRoot"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "title": { "type": "string", "minLength": 1 },
+    "platform": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "mode": { "enum": ["on-device", "remote-control"] },
+    "aliases": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
+    "skillsRoot": { "type": "string", "pattern": "^(?:\\.|(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+)$" },
+    "legacyPath": { "type": "boolean" },
+    "generatedFrom": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

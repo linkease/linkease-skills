@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/linkease/linkease-skills/schemas/catalog.schema.json",
+  "title": "LinkEase Skills catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "name", "defaultPolicy", "presets"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "defaultPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["installAll"],
+      "properties": {
+        "installAll": { "const": false }
+      }
+    },
+    "presets": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "preset.schema.json" }
+    }
+  }
+}
