@@ -19,7 +19,7 @@ for skill in "$root"/istoreos/skills/*; do
   grep -q '^systems: istoreos$' "$skill/SKILL.md" ||
     fail "missing systems metadata in $skill/SKILL.md"
 done
-[ "$canonical_count" -eq 19 ] || fail "expected 19 canonical iStoreOS skills, got $canonical_count"
+[ "$canonical_count" -eq 20 ] || fail "expected 20 canonical iStoreOS skills, got $canonical_count"
 
 remote_count=0
 for skill in "$root"/remote-control-istoreos/*; do
@@ -30,20 +30,19 @@ for skill in "$root"/remote-control-istoreos/*; do
     *) fail "system skill duplicated in remote preset: $skill" ;;
   esac
 done
-[ "$remote_count" -eq 2 ] || fail "expected 2 remote transport skills, got $remote_count"
+[ "$remote_count" -eq 0 ] || fail "remote preset must not own skills, got $remote_count"
 
 sh "$root/remote-control-istoreos/install.sh" --target "$tmp/direct" --copy >/dev/null
 direct_count="$(find "$tmp/direct" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
-[ "$direct_count" -eq 21 ] || fail "direct preset install expected 21 skills, got $direct_count"
+[ "$direct_count" -eq 22 ] || fail "direct preset install expected 22 skills, got $direct_count"
 
 sh "$root/install.sh" --profile remote-control-istoreos \
   --target-skills "$tmp/root" --copy >/dev/null
 root_count="$(find "$tmp/root" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
-[ "$root_count" -eq 21 ] || fail "root installer expected 21 skills, got $root_count"
+[ "$root_count" -eq 22 ] || fail "root installer expected 22 skills, got $root_count"
 
 for installed in "$tmp/direct"/istoreos-*; do
   name="$(basename "$installed")"
-  [ "$name" = "istoreos-ssh-ops" ] && continue
   cmp "$root/istoreos/skills/$name/SKILL.md" "$installed/SKILL.md" >/dev/null ||
     fail "installed skill is not canonical: $name"
 done

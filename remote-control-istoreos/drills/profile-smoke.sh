@@ -15,22 +15,26 @@ need_file "manifest.json"
 need_file "home-prompts.json"
 need_file "agents/remote-istoreos.md"
 need_file "TASK_ROUTING.md"
-need_file "istoreos-ssh-ops/SKILL.md"
-need_file "quickstart-router-api/SKILL.md"
 [ -f "$repo_root/istoreos/skills/istoreos-docker-acceleration-istoreenhance/SKILL.md" ] || {
   echo "failed: missing canonical iStoreOS system pack" >&2
   exit 1
 }
 
-for path in "$root"/istoreos-*; do
-  [ -f "$path/SKILL.md" ] || continue
-  [ "$(basename "$path")" = "istoreos-ssh-ops" ] || {
-    echo "failed: duplicated system skill remains in remote preset: $path" >&2
-    exit 1
-  }
-done
+[ -f "$repo_root/components/transports/ssh/skills/target-ssh-controller/SKILL.md" ] || {
+  echo "failed: missing canonical SSH transport" >&2
+  exit 1
+}
+[ -f "$repo_root/components/transports/luci-http/skills/luci-http-controller/SKILL.md" ] || {
+  echo "failed: missing canonical LuCI HTTP transport" >&2
+  exit 1
+}
 
-for script in "$root"/*/scripts/*.sh; do
+if find "$root" -mindepth 2 -maxdepth 2 -name SKILL.md | grep . >/dev/null 2>&1; then
+  echo "failed: remote preset contains manually maintained skills" >&2
+  exit 1
+fi
+
+for script in "$repo_root"/components/transports/*/skills/*/scripts/*.sh; do
   [ -f "$script" ] || continue
   sh -n "$script"
 done
@@ -38,8 +42,8 @@ done
 tmp="$(mktemp -d "${TMPDIR:-/tmp}/linkease-remote-smoke.XXXXXX")"
 trap 'rm -rf "$tmp"' EXIT HUP INT TERM
 sh "$root/install.sh" --target "$tmp" --copy >/dev/null
-[ "$(find "$tmp" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')" -eq 21 ] || {
-  echo "failed: remote preset did not install 19 system + 2 transport skills" >&2
+[ "$(find "$tmp" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')" -eq 22 ] || {
+  echo "failed: remote preset did not install 20 system + 2 transport skills" >&2
   exit 1
 }
 cmp "$repo_root/istoreos/skills/istoreos-package-manager/SKILL.md" \

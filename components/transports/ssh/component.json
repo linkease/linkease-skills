@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "transport.ssh",
+  "version": "1.0.0",
+  "kind": "transport",
+  "skillsRoot": "skills",
+  "provides": [
+    "target.exec",
+    "target.run-script",
+    "target.facts"
+  ]
+}

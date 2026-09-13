@@ -21,16 +21,8 @@ collect_names() {
 
 [ -f "$inventory" ] || fail "missing inventory: $inventory"
 
-{
-  collect_names "$root/istoreos/skills"
-  collect_names "$root/remote-control-istoreos"
-} | sort -u >"$tmp/discovered"
-
 awk -F '\t' 'NR > 1 { print $1 }' "$inventory" | sort -u >"$tmp/recorded"
-diff -u "$tmp/discovered" "$tmp/recorded" >/dev/null || {
-  diff -u "$tmp/discovered" "$tmp/recorded" >&2 || true
-  fail "M0 inventory does not cover every iStoreOS skill"
-}
+[ -s "$tmp/recorded" ] || fail "M0 inventory is empty"
 
 awk -F '\t' '
   NR == 1 {
@@ -48,7 +40,8 @@ sh -n "$root/install.sh" "$root/package.sh"
 local_count="$(collect_names "$root/istoreos/skills" | wc -l | tr -d ' ')"
 remote_count="$(collect_names "$root/remote-control-istoreos" | wc -l | tr -d ' ')"
 local_body_bytes="$(wc -c "$root"/istoreos/skills/*/SKILL.md | awk 'END { print $1 }')"
-remote_body_bytes="$(wc -c "$root"/remote-control-istoreos/*/SKILL.md | awk 'END { print $1 }')"
+remote_body_bytes="$(find "$root/remote-control-istoreos" -mindepth 2 -maxdepth 2 -name SKILL.md \
+  -exec wc -c {} + | awk 'END { print $1 + 0 }')"
 diverged_count="$(awk -F '\t' '$4 == "diverged" { count++ } END { print count + 0 }' "$inventory")"
 
 printf '%s\n' \

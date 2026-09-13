@@ -93,6 +93,7 @@ tar_paths() {
     printf '%s/%s\n' "$base" "$profile"
     if [ "$profile" = "remote-control-istoreos" ]; then
       printf '%s/istoreos/skills\n' "$base"
+      printf '%s/components/transports\n' "$base"
     fi
   fi
 }

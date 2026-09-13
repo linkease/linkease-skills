@@ -119,7 +119,8 @@ install_skills() {
 
   if [ "$profile" = "remote-control-istoreos" ]; then
     install_skills_from "$root/istoreos/skills"
-    install_skills_from "$src"
+    install_skills_from "$root/components/transports/ssh/skills"
+    install_skills_from "$root/components/transports/luci-http/skills"
   elif [ -d "$src/skills" ]; then
     install_skills_from "$src/skills"
   else

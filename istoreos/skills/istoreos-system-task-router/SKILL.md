@@ -32,7 +32,7 @@ Use this skill when an iStoreOS request is ambiguous, spans domains, or has no o
 ## Loading Budget
 
 - Load only the selected primary skill first.
-- Load at most one internal helper at a time, and only when current evidence requires it. Common helpers are `istoreos-app-search`, `istoreos-logs-and-diagnostics`, and `istoreos-source-introspect`.
+- Load at most one internal helper at a time, and only when current evidence requires it. Common helpers are `istoreos-app-search`, `istoreos-logs-and-diagnostics`, `istoreos-source-introspect`, and `istoreos-quickstart-api` when a bound LuCI HTTP capability exists.
 - Do not load every skill named in a route or preload follow-up skills "just in case".
 - Do not expose skill names as choices unless the user asks for implementation details.
 

@@ -68,6 +68,7 @@ istoreos-docker-acceleration-istoreenhance
 istoreos-kspeeder-domainfold-fetch
 istoreos-logs-and-diagnostics
 istoreos-source-introspect
+istoreos-quickstart-api
 "
 
 is_manual_skill() {

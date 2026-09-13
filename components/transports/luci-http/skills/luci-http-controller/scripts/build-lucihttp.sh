@@ -8,9 +8,9 @@ build_one() {
   goos="$1"
   goarch="$2"
   suffix="$3"
-  out="../bin/qsctl-${goos}-${goarch}${suffix}"
+  out="../bin/lucihttp-${goos}-${goarch}${suffix}"
   echo "building ${out}"
-  CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" go build -trimpath -ldflags="-s -w" -o "$out" qsctl.go
+  CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" go build -trimpath -ldflags="-s -w" -o "$out" lucihttp.go
 }
 
 build_one linux amd64 ""

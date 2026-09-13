@@ -7,8 +7,9 @@ LinkEase 维护的 AI agent skills 集合，用于沉淀跨 agent、跨系统、
 
 ## 当前内容
 
-- `quickstart-router-api`: 通过 QuickStart/LuCI API 读取和控制路由器，默认 Go helper，curl fallback。
-- `istoreos-ssh-ops`: SSH 入口 skill，只读识别系统、磁盘、服务、Docker、日志，并按症状转入专项 skill。
+- `../components/transports/ssh`: 绑定目标并通过严格 host-key 校验执行目标脚本。
+- `../components/transports/luci-http`: 通过 LuCI 登录并发送有界 HTTP 请求。
+- `../istoreos/skills/istoreos-quickstart-api`: QuickStart endpoint 与危险操作语义。
 - `../istoreos/skills/istoreos-*`: 磁盘、LuCI、Docker、opkg、备份恢复、服务修复等规范系统 skills。
 
 ## 安装

@@ -89,6 +89,8 @@ done
 
 root="$(CDPATH= cd "$(dirname "$0")" && pwd -P)"
 system_skills="$root/../istoreos/skills"
+ssh_skills="$root/../components/transports/ssh/skills"
+luci_skills="$root/../components/transports/luci-http/skills"
 [ -d "$system_skills" ] || {
   echo "failed: canonical iStoreOS system pack is missing at $system_skills" >&2
   exit 1
@@ -135,6 +137,7 @@ install_from() {
 }
 
 install_from "$system_skills"
-install_from "$root"
+install_from "$ssh_skills"
+install_from "$luci_skills"
 
 echo "done: installed $count skills into $target" >&2

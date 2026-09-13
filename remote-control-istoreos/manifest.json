@@ -7,7 +7,10 @@
     "remote-istoreos.md"
   ],
   "systemPack": "../istoreos/skills",
-  "transportSkillsRoot": ".",
+  "transportSkillsRoots": [
+    "../components/transports/ssh/skills",
+    "../components/transports/luci-http/skills"
+  ],
   "homePrompts": "home-prompts.json",
   "routing": "TASK_ROUTING.md"
 }
