@@ -21,7 +21,7 @@
     "linux": "1.0.0",
     "openwrt": "1.0.0",
     "istoreos": "2.0.0",
-    "transport.ssh": "1.0.0",
+    "transport.ssh": "1.1.0",
     "transport.luci-http": "1.0.0"
   },
   "sourceDigest": "sha256:28f9ec8d4eda9d71242058e60081e6e882d03bf88d703775f19fd0edb0a3570b",

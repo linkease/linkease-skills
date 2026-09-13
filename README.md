@@ -22,6 +22,11 @@
 
 每个目录都是自包含安装预设。不要从 `components/` 安装；那里是维护者使用的唯一源码。
 
+### Windows
+
+- [`platforms/windows/on-device`](platforms/windows/on-device)：AI 在 Windows 的 PowerShell 环境运行。
+- [`platforms/windows/remote-control`](platforms/windows/remote-control)：AI 通过 Windows OpenSSH + PowerShell 远程控制。
+
 ## 安装器
 
 先查看可用预设：

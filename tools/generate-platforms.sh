@@ -33,6 +33,16 @@ copy_skills() {
   destination="$1"
   shift
   for source_root in "$@"; do
+    if [ -f "$root/$source_root/SKILL.md" ]; then
+      source="$root/$source_root"
+      name="$(basename "$source")"
+      [ ! -e "$destination/$name" ] || {
+        echo "failed: duplicate generated skill $name" >&2
+        exit 1
+      }
+      cp -R "$source" "$destination/$name"
+      continue
+    fi
     for source in "$root/$source_root"/*; do
       [ -f "$source/SKILL.md" ] || continue
       name="$(basename "$source")"
@@ -46,12 +56,13 @@ copy_skills() {
 }
 
 make_preset() {
-  mode="$1"
-  title="$2"
-  generated_from_json="$3"
-  component_versions_json="$4"
-  shift 4
-  preset="$output/istoreos/$mode"
+  platform="$1"
+  mode="$2"
+  title="$3"
+  generated_from_json="$4"
+  component_versions_json="$5"
+  shift 5
+  preset="$output/$platform/$mode"
   rm -rf "$preset"
   mkdir -p "$preset/skills"
   copy_skills "$preset/skills" "$@"
@@ -61,21 +72,22 @@ make_preset() {
   source_digest="$(hash_roots "$@")"
   tree_digest="$(hash_tree "$preset/skills")"
   jq -n \
-    --arg id "istoreos-$mode" \
+    --arg id "$platform-$mode" \
     --arg title "$title" \
+    --arg platform "$platform" \
     --arg mode "$mode" \
     --arg sourceDigest "$source_digest" \
     --arg treeDigest "$tree_digest" \
     --argjson generatedFrom "$generated_from_json" \
     --argjson componentVersions "$component_versions_json" \
-    '{schemaVersion: 1, id: $id, title: $title, platform: "istoreos", mode: $mode,
+    '{schemaVersion: 1, id: $id, title: $title, platform: $platform, mode: $mode,
       aliases: [], path: ".", skillsRoot: "skills", generated: true,
       generatedFrom: $generatedFrom, componentVersions: $componentVersions,
       sourceDigest: $sourceDigest, treeDigest: $treeDigest}' \
     >"$preset/preset.json"
   cp "$preset/preset.json" "$preset/.generated.json"
   printf '%s\n' \
-    '# Generated iStoreOS preset' \
+    "# Generated $platform preset" \
     '' \
     'This directory is generated. Do not edit it; change `components/` and run `tools/generate-platforms.sh`.' \
     '' \
@@ -85,14 +97,14 @@ make_preset() {
 
 mkdir -p "$output/istoreos"
 system_roots="components/system-packs/common/skills components/system-packs/linux/skills components/system-packs/openwrt/skills components/system-packs/istoreos/skills"
-make_preset on-device "Use an agent on an iStoreOS device" \
+make_preset istoreos on-device "Use an agent on an iStoreOS device" \
   '["common","linux","openwrt","istoreos"]' \
   '{"common":"1.0.0","linux":"1.0.0","openwrt":"1.0.0","istoreos":"2.0.0"}' \
   $system_roots
-make_preset remote-control "Control an iStoreOS device remotely" \
+make_preset istoreos remote-control "Control an iStoreOS device remotely" \
   '["common","linux","openwrt","istoreos","transport.ssh","transport.luci-http"]' \
-  '{"common":"1.0.0","linux":"1.0.0","openwrt":"1.0.0","istoreos":"2.0.0","transport.ssh":"1.0.0","transport.luci-http":"1.0.0"}' \
-  $system_roots components/transports/ssh/skills components/transports/luci-http/skills
+  '{"common":"1.0.0","linux":"1.0.0","openwrt":"1.0.0","istoreos":"2.0.0","transport.ssh":"1.1.0","transport.luci-http":"1.0.0"}' \
+  $system_roots components/transports/ssh/skills/target-ssh-controller components/transports/luci-http/skills
 
 printf '%s\n' \
   '# iStoreOS skills' \
@@ -102,3 +114,23 @@ printf '%s\n' \
   >"$output/istoreos/README.md"
 
 echo "ok: generated $output/istoreos"
+
+mkdir -p "$output/windows"
+windows_roots="components/system-packs/common/skills components/system-packs/windows/skills"
+make_preset windows on-device "Use an agent on a Windows device" \
+  '["common","windows"]' \
+  '{"common":"1.0.0","windows":"1.0.0"}' \
+  $windows_roots
+make_preset windows remote-control "Control a Windows device remotely" \
+  '["common","windows","transport.ssh"]' \
+  '{"common":"1.0.0","windows":"1.0.0","transport.ssh":"1.1.0"}' \
+  $windows_roots components/transports/ssh/skills/target-ssh-powershell-controller
+
+printf '%s\n' \
+  '# Windows skills' \
+  '' \
+  '- `on-device/`: the Agent runs on Windows with PowerShell.' \
+  '- `remote-control/`: the Agent uses Windows OpenSSH and PowerShell.' \
+  >"$output/windows/README.md"
+
+echo "ok: generated $output/windows"

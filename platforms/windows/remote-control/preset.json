@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "windows-remote-control",
+  "title": "Control a Windows device remotely",
+  "platform": "windows",
+  "mode": "remote-control",
+  "aliases": [],
+  "path": ".",
+  "skillsRoot": "skills",
+  "generated": true,
+  "generatedFrom": [
+    "common",
+    "windows",
+    "transport.ssh"
+  ],
+  "componentVersions": {
+    "common": "1.0.0",
+    "windows": "1.0.0",
+    "transport.ssh": "1.1.0"
+  },
+  "sourceDigest": "sha256:8b6dc3eb7f94012c1028d41e248f56d8bd7c3d07c061159fad1569653c1e0fdf",
+  "treeDigest": "sha256:9ade1a000ad2869fa939e9e431292f9bffbc2abb993a8f6d46b699bc21e83f5e"
+}

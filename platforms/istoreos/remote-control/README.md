@@ -1,4 +1,4 @@
-# Generated iStoreOS preset
+# Generated istoreos preset
 
 This directory is generated. Do not edit it; change `components/` and run `tools/generate-platforms.sh`.
 

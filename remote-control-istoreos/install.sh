@@ -137,7 +137,8 @@ install_from() {
 }
 
 install_from "$system_skills"
-install_from "$ssh_skills"
+install_one "$ssh_skills/target-ssh-controller"
+count=$((count + 1))
 install_from "$luci_skills"
 
 echo "done: installed $count skills into $target" >&2

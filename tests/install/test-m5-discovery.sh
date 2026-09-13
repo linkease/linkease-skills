@@ -12,8 +12,8 @@ fail() {
 
 sh -n "$root/install.sh"
 list="$(sh "$root/install.sh" --list)"
-[ "$(printf '%s\n' "$list" | wc -l | tr -d ' ')" -eq 2 ] || fail "text list must contain two presets"
-sh "$root/install.sh" --list --json | jq -e 'length == 2' >/dev/null
+[ "$(printf '%s\n' "$list" | wc -l | tr -d ' ')" -eq 4 ] || fail "text list must contain four presets"
+sh "$root/install.sh" --list --json | jq -e 'length == 4' >/dev/null
 sh "$root/install.sh" --describe istoreos-remote-control |
   jq -e '.platform == "istoreos" and .mode == "remote-control"' >/dev/null
 

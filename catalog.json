@@ -37,6 +37,30 @@
       "skillsRoot": "skills",
       "generated": true,
       "generatedFrom": ["common", "linux", "openwrt", "istoreos", "transport.ssh", "transport.luci-http"]
+    },
+    {
+      "id": "windows-on-device",
+      "schemaVersion": 1,
+      "title": "Use an agent on a Windows device",
+      "platform": "windows",
+      "mode": "on-device",
+      "aliases": ["Windows on device", "在 Windows 上使用", "本机维护 Windows"],
+      "path": "platforms/windows/on-device",
+      "skillsRoot": "skills",
+      "generated": true,
+      "generatedFrom": ["common", "windows"]
+    },
+    {
+      "id": "windows-remote-control",
+      "schemaVersion": 1,
+      "title": "Control a Windows device remotely",
+      "platform": "windows",
+      "mode": "remote-control",
+      "aliases": ["remote control Windows", "远程控制 Windows", "SSH 控制 Windows"],
+      "path": "platforms/windows/remote-control",
+      "skillsRoot": "skills",
+      "generated": true,
+      "generatedFrom": ["common", "windows", "transport.ssh"]
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "windows-on-device",
+  "title": "Use an agent on a Windows device",
+  "platform": "windows",
+  "mode": "on-device",
+  "aliases": [],
+  "path": ".",
+  "skillsRoot": "skills",
+  "generated": true,
+  "generatedFrom": [
+    "common",
+    "windows"
+  ],
+  "componentVersions": {
+    "common": "1.0.0",
+    "windows": "1.0.0"
+  },
+  "sourceDigest": "sha256:6b7a1acc09525da5c8f7cde2c5616b40e37c22a7e1d5aa232e1fbc06d673e5da",
+  "treeDigest": "sha256:8d5b2b6f423d437211ae32b5d2e7861d5c508effc5eebb0729f1543d992b4c90"
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "os": {
+    "caption": "Microsoft Windows Server 2022 Standard",
+    "version": "10.0.20348",
+    "architecture": "64-bit",
+    "lastBoot": "2026-09-13T00:00:00.0000000Z"
+  },
+  "fixedDisks": [
+    {"device": "C:", "sizeBytes": 107374182400, "freeBytes": 53687091200}
+  ],
+  "serviceTotals": {"running": 120, "stopped": 80},
+  "recentCriticalEvents": [],
+  "truncated": false
+}
