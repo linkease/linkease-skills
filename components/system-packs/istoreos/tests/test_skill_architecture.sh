@@ -129,14 +129,14 @@ eager_reference="$(rg --files "$root/skills" | grep '/references/.*\.md$' | head
 }
 
 catalog_bytes="$(wc -c <"$catalog" | tr -d ' ')"
-[ "$catalog_bytes" -le 5000 ] || {
-  echo "failed: auto-discovered skill catalog exceeds 5000 source bytes (actual=$catalog_bytes)" >&2
+[ "$catalog_bytes" -le 3072 ] || {
+  echo "failed: auto-discovered skill catalog exceeds 3 KiB (actual=$catalog_bytes)" >&2
   exit 1
 }
 
 prompt_bytes="$(( $(wc -c <"$root/agents/system.md") + $(wc -c <"$root/agents/istoreos.md") ))"
-[ "$prompt_bytes" -le 3500 ] || {
-  echo "failed: always-on iStoreOS agent prompts exceed 3500 bytes (actual=$prompt_bytes)" >&2
+[ "$prompt_bytes" -le 2048 ] || {
+  echo "failed: always-on iStoreOS agent prompts exceed 2 KiB (actual=$prompt_bytes)" >&2
   exit 1
 }
 
