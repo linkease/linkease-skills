@@ -4,21 +4,32 @@
   "title": "LinkEase third-party installation preset",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "title", "platform", "mode", "aliases", "path", "skillsRoot"],
+  "required": ["schemaVersion", "id", "title", "platform", "mode", "aliases", "path", "skillsRoot"],
   "properties": {
+    "schemaVersion": { "const": 1 },
     "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
     "title": { "type": "string", "minLength": 1 },
     "platform": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
     "mode": { "enum": ["on-device", "remote-control"] },
     "aliases": {
       "type": "array",
-      "minItems": 1,
       "uniqueItems": true,
       "items": { "type": "string", "minLength": 1 }
     },
     "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
     "skillsRoot": { "type": "string", "pattern": "^(?:\\.|(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+)$" },
     "legacyPath": { "type": "boolean" },
+    "generated": { "type": "boolean" },
+    "sourceDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "treeDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "componentVersions": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"
+      }
+    },
     "generatedFrom": {
       "type": "array",
       "minItems": 1,

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "istoreos-remote-control",
+  "title": "Control an iStoreOS device remotely",
+  "platform": "istoreos",
+  "mode": "remote-control",
+  "aliases": [],
+  "path": ".",
+  "skillsRoot": "skills",
+  "generated": true,
+  "generatedFrom": [
+    "system.common",
+    "system.linux",
+    "system.openwrt",
+    "system.istoreos",
+    "transport.ssh",
+    "transport.luci-http"
+  ],
+  "componentVersions": {
+    "system.common": "1.0.0",
+    "system.linux": "1.0.0",
+    "system.openwrt": "1.0.0",
+    "system.istoreos": "1.0.0",
+    "transport.ssh": "1.0.0",
+    "transport.luci-http": "1.0.0"
+  },
+  "sourceDigest": "sha256:28f9ec8d4eda9d71242058e60081e6e882d03bf88d703775f19fd0edb0a3570b",
+  "treeDigest": "sha256:feda6e0823383833ff50a79902b86960234ac5b7304d33b8bc6d0e4a0397277a"
+}

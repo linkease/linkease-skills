@@ -8,6 +8,7 @@
   "presets": [
     {
       "id": "istoreos-on-device",
+      "schemaVersion": 1,
       "title": "Use an agent on an iStoreOS device",
       "platform": "istoreos",
       "mode": "on-device",
@@ -16,12 +17,14 @@
         "在 iStoreOS 上使用",
         "安装到 iStoreOS"
       ],
-      "path": "istoreos",
+      "path": "platforms/istoreos/on-device",
       "skillsRoot": "skills",
-      "legacyPath": true
+      "generated": true,
+      "generatedFrom": ["system.common", "system.linux", "system.openwrt", "system.istoreos"]
     },
     {
       "id": "istoreos-remote-control",
+      "schemaVersion": 1,
       "title": "Control an iStoreOS device remotely",
       "platform": "istoreos",
       "mode": "remote-control",
@@ -30,9 +33,10 @@
         "远程控制 iStoreOS",
         "SSH 控制软路由"
       ],
-      "path": "remote-control-istoreos",
-      "skillsRoot": ".",
-      "legacyPath": true
+      "path": "platforms/istoreos/remote-control",
+      "skillsRoot": "skills",
+      "generated": true,
+      "generatedFrom": ["system.common", "system.linux", "system.openwrt", "system.istoreos", "transport.ssh", "transport.luci-http"]
     }
   ]
 }

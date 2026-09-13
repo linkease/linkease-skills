@@ -1,0 +1,13 @@
+{
+  "$schema": "../../../schemas/pack.schema.json",
+  "schemaVersion": 1,
+  "id": "system.linux",
+  "version": "1.0.0",
+  "layer": "family",
+  "extends": ["system.common"],
+  "match": {
+    "osFamily": "linux"
+  },
+  "skillsRoot": "skills",
+  "requires": ["target-shell:posix"]
+}
