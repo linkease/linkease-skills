@@ -20,7 +20,7 @@
       "path": "platforms/istoreos/on-device",
       "skillsRoot": "skills",
       "generated": true,
-      "generatedFrom": ["system.common", "system.linux", "system.openwrt", "system.istoreos"]
+      "generatedFrom": ["common", "linux", "openwrt", "istoreos"]
     },
     {
       "id": "istoreos-remote-control",
@@ -36,7 +36,7 @@
       "path": "platforms/istoreos/remote-control",
       "skillsRoot": "skills",
       "generated": true,
-      "generatedFrom": ["system.common", "system.linux", "system.openwrt", "system.istoreos", "transport.ssh", "transport.luci-http"]
+      "generatedFrom": ["common", "linux", "openwrt", "istoreos", "transport.ssh", "transport.luci-http"]
     }
   ]
 }

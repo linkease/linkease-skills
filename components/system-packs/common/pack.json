@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schemas/pack.schema.json",
   "schemaVersion": 1,
-  "id": "system.common",
+  "id": "common",
   "version": "1.0.0",
   "layer": "common",
   "skillsRoot": "skills",

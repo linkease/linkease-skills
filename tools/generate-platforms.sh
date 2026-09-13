@@ -86,12 +86,12 @@ make_preset() {
 mkdir -p "$output/istoreos"
 system_roots="components/system-packs/common/skills components/system-packs/linux/skills components/system-packs/openwrt/skills components/system-packs/istoreos/skills"
 make_preset on-device "Use an agent on an iStoreOS device" \
-  '["system.common","system.linux","system.openwrt","system.istoreos"]' \
-  '{"system.common":"1.0.0","system.linux":"1.0.0","system.openwrt":"1.0.0","system.istoreos":"1.0.0"}' \
+  '["common","linux","openwrt","istoreos"]' \
+  '{"common":"1.0.0","linux":"1.0.0","openwrt":"1.0.0","istoreos":"2.0.0"}' \
   $system_roots
 make_preset remote-control "Control an iStoreOS device remotely" \
-  '["system.common","system.linux","system.openwrt","system.istoreos","transport.ssh","transport.luci-http"]' \
-  '{"system.common":"1.0.0","system.linux":"1.0.0","system.openwrt":"1.0.0","system.istoreos":"1.0.0","transport.ssh":"1.0.0","transport.luci-http":"1.0.0"}' \
+  '["common","linux","openwrt","istoreos","transport.ssh","transport.luci-http"]' \
+  '{"common":"1.0.0","linux":"1.0.0","openwrt":"1.0.0","istoreos":"2.0.0","transport.ssh":"1.0.0","transport.luci-http":"1.0.0"}' \
   $system_roots components/transports/ssh/skills components/transports/luci-http/skills
 
 printf '%s\n' \

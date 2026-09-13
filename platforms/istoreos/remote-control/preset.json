@@ -9,18 +9,18 @@
   "skillsRoot": "skills",
   "generated": true,
   "generatedFrom": [
-    "system.common",
-    "system.linux",
-    "system.openwrt",
-    "system.istoreos",
+    "common",
+    "linux",
+    "openwrt",
+    "istoreos",
     "transport.ssh",
     "transport.luci-http"
   ],
   "componentVersions": {
-    "system.common": "1.0.0",
-    "system.linux": "1.0.0",
-    "system.openwrt": "1.0.0",
-    "system.istoreos": "1.0.0",
+    "common": "1.0.0",
+    "linux": "1.0.0",
+    "openwrt": "1.0.0",
+    "istoreos": "2.0.0",
     "transport.ssh": "1.0.0",
     "transport.luci-http": "1.0.0"
   },

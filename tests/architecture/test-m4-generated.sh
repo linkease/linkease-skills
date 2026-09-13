@@ -14,13 +14,13 @@ fail() {
 [ "$(readlink "$root/istoreos")" = "components/system-packs/istoreos" ] ||
   fail "legacy istoreos symlink points to the wrong canonical pack"
 
-jq -e '.id == "system.common" and .layer == "common"' \
+jq -e '.id == "common" and .layer == "common"' \
   "$root/components/system-packs/common/pack.json" >/dev/null
-jq -e '.id == "system.linux" and .extends == ["system.common"]' \
+jq -e '.id == "linux" and .extends == ["common"]' \
   "$root/components/system-packs/linux/pack.json" >/dev/null
-jq -e '.id == "system.openwrt" and .extends == ["system.linux"]' \
+jq -e '.id == "openwrt" and .extends == ["linux"] and .match.osFamily == "openwrt"' \
   "$root/components/system-packs/openwrt/pack.json" >/dev/null
-jq -e '.id == "system.istoreos" and .extends == ["system.openwrt"]' \
+jq -e '.id == "istoreos" and .version == "2.0.0" and .extends == ["openwrt"] and .match.distribution == "istoreos"' \
   "$root/components/system-packs/istoreos/pack.json" >/dev/null
 
 sh "$root/tools/generate-platforms.sh" "$tmp/first" >/dev/null

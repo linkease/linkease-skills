@@ -1,13 +1,12 @@
 {
   "$schema": "../../../schemas/pack.schema.json",
   "schemaVersion": 1,
-  "id": "system.openwrt",
+  "id": "openwrt",
   "version": "1.0.0",
   "layer": "distribution",
-  "extends": ["system.linux"],
+  "extends": ["linux"],
   "match": {
-    "osFamily": "linux",
-    "distribution": "openwrt"
+    "osFamily": "openwrt"
   },
   "skillsRoot": "skills",
   "requires": ["target-shell:posix"]

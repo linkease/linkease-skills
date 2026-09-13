@@ -9,16 +9,16 @@
   "skillsRoot": "skills",
   "generated": true,
   "generatedFrom": [
-    "system.common",
-    "system.linux",
-    "system.openwrt",
-    "system.istoreos"
+    "common",
+    "linux",
+    "openwrt",
+    "istoreos"
   ],
   "componentVersions": {
-    "system.common": "1.0.0",
-    "system.linux": "1.0.0",
-    "system.openwrt": "1.0.0",
-    "system.istoreos": "1.0.0"
+    "common": "1.0.0",
+    "linux": "1.0.0",
+    "openwrt": "1.0.0",
+    "istoreos": "2.0.0"
   },
   "sourceDigest": "sha256:7dc192fa30ed25b612c13011b2cf0b01edd80af3b9667f8a1039ce3c6849ba81",
   "treeDigest": "sha256:dda46b3956eb4673fb930489777376cc19a4e9148222ea5bb3813f2e08e65150"
