@@ -1,6 +1,8 @@
 ---
 name: istoreos-docker-basics
 description: 检查、安装、启停和排查 iStoreOS Docker/dockerd 与容器；镜像或文件下载慢由下载加速能力处理，数据目录迁移由专用 skill 处理。
+owner: system-pack/istoreos
+systems: istoreos
 triggers: Docker 异常, Docker 安装, Docker 启动失败, dockerd, 容器异常, compose, 容器服务
 negative-triggers: Docker 镜像慢, Docker 拉取失败, docker pull, Docker 数据目录, data_root
 auto-use: prefer

@@ -1,6 +1,8 @@
 ---
 name: istoreos-package-manager
 description: 搜索、安装、升级或卸载 iStoreOS 应用和软件包，并区分 iStore meta、opkg 与 Docker 应用；运行时环境和 .run 文件由专用 skill 处理。
+owner: system-pack/istoreos
+systems: istoreos
 triggers: 安装应用, 安装软件, 安装插件, 卸载应用, 升级应用, 找应用, 找插件, 搜索应用, 推荐应用, 推荐插件, 文件管理插件, 软件包, opkg, is-opkg, iStore 应用
 negative-triggers: 安装 Python, 安装 Node.js, 安装 Go, Docker 镜像, .run 文件
 auto-use: prefer

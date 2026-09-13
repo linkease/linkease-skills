@@ -1,6 +1,8 @@
 ---
 name: istoreos-app-diagnostics
 description: 只读分析最近一次 iStore 安装任务，将任务日志、当前包状态和插件能力合并为紧凑诊断报告；由应用安装流程在失败或安装后异常时按需调用。
+owner: system-pack/istoreos
+systems: istoreos
 invocation: manual
 auto-use: off
 needs-fresh-data: true

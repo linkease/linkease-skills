@@ -16,7 +16,7 @@ Usage:
 Defaults:
   --codex --copy
 
-Installs each child directory containing SKILL.md as an individual skill.
+Installs the canonical iStoreOS system pack plus this preset's transport skills.
 EOF
 }
 
@@ -88,6 +88,11 @@ done
 [ -n "$target" ] || target="$(codex_target)"
 
 root="$(CDPATH= cd "$(dirname "$0")" && pwd -P)"
+system_skills="$root/../istoreos/skills"
+[ -d "$system_skills" ] || {
+  echo "failed: canonical iStoreOS system pack is missing at $system_skills" >&2
+  exit 1
+}
 mkdir -p "$target"
 
 install_one() {
@@ -119,11 +124,17 @@ install_one() {
 }
 
 count=0
-for skill in "$root"/*; do
-  [ -d "$skill" ] || continue
-  [ -f "$skill/SKILL.md" ] || continue
-  install_one "$skill"
-  count=$((count + 1))
-done
+install_from() {
+  source_dir="$1"
+  for skill in "$source_dir"/*; do
+    [ -d "$skill" ] || continue
+    [ -f "$skill/SKILL.md" ] || continue
+    install_one "$skill"
+    count=$((count + 1))
+  done
+}
+
+install_from "$system_skills"
+install_from "$root"
 
 echo "done: installed $count skills into $target" >&2

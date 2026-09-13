@@ -1,6 +1,8 @@
 ---
 name: istoreos-network-quality
 description: 使用 iStoreOS 内置 FastNet 测量并解释外网带宽、延迟与抖动、NAT 类型、IPv6 可用性和局域网吞吐；用于网速慢、测速、NAT/IPv6 检测和 LAN 测速，不用于特定下载源加速或修改网络配置。
+owner: system-pack/istoreos
+systems: istoreos
 triggers: 网速慢, 测速, 宽带速度, 上行速度, 下行速度, 延迟, 抖动, NAT 类型, IPv6 测试, IPv6 可用性, 局域网测速, LAN 测速, FastNet
 negative-triggers: Docker 镜像下载慢, GitHub 下载慢, 文件下载失败, 修改 IPv6 模式, 修改网络配置
 auto-use: prefer

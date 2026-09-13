@@ -91,6 +91,9 @@ tar_paths() {
     printf '%s\n' "$base/package.sh"
     printf '%s\n' "$base/README.md"
     printf '%s/%s\n' "$base" "$profile"
+    if [ "$profile" = "remote-control-istoreos" ]; then
+      printf '%s/istoreos/skills\n' "$base"
+    fi
   fi
 }
 

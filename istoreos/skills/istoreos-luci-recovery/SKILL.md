@@ -1,6 +1,8 @@
 ---
 name: istoreos-luci-recovery
 description: 诊断和恢复 iStoreOS LuCI 管理页面打不开、500、空白或登录循环；先只读采证，修改、重启或重装前必须确认。
+owner: system-pack/istoreos
+systems: istoreos
 triggers: LuCI 打不开, LuCI 500, LuCI 空白, LuCI 登录循环, 管理页面打不开, Web 管理异常
 auto-use: prefer
 routing-group: istoreos-primary

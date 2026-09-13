@@ -108,18 +108,22 @@ copy_file() {
 install_skills() {
   dest="$1"
   mkdir -p "$dest"
-  if [ -d "$src/skills" ]; then
-    for skill in "$src"/skills/*; do
+  install_skills_from() {
+    skills_root="$1"
+    for skill in "$skills_root"/*; do
       [ -d "$skill" ] || continue
       [ -f "$skill/SKILL.md" ] || continue
       copy_or_link_dir "$skill" "$dest/$(basename "$skill")"
     done
+  }
+
+  if [ "$profile" = "remote-control-istoreos" ]; then
+    install_skills_from "$root/istoreos/skills"
+    install_skills_from "$src"
+  elif [ -d "$src/skills" ]; then
+    install_skills_from "$src/skills"
   else
-    for skill in "$src"/*; do
-      [ -d "$skill" ] || continue
-      [ -f "$skill/SKILL.md" ] || continue
-      copy_or_link_dir "$skill" "$dest/$(basename "$skill")"
-    done
+    install_skills_from "$src"
   fi
 }
 

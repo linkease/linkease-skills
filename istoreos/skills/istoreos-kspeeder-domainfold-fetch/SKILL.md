@@ -1,6 +1,8 @@
 ---
 name: istoreos-kspeeder-domainfold-fetch
 description: 通过设备内 iStoreEnhance/KSpeeder 加速受支持的外部文件和公开 HTTPS Git 仓库；仅作为下载加速主 skill 按证据调用的内部执行 helper。
+owner: system-pack/istoreos
+systems: istoreos
 invocation: manual
 auto-use: off
 needs-fresh-data: true

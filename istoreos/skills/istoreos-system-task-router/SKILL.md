@@ -1,6 +1,8 @@
 ---
 name: istoreos-system-task-router
 description: iStoreOS 用户问题的轻量分流与未知问题回退入口；任务含糊、跨多个子系统或没有明显专用 skill 时，选择一个主能力并从最小只读证据开始。
+owner: system-pack/istoreos
+systems: istoreos
 triggers: iStoreOS, 路由器问题, 系统问题, 帮我检查, 帮我修复, 不知道怎么办, 不确定, 报错, 异常
 auto-use: suggest
 routing-group: istoreos-primary

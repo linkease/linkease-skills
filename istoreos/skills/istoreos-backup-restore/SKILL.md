@@ -1,6 +1,8 @@
 ---
 name: istoreos-backup-restore
 description: iStoreOS 系统备份、恢复与回滚闭环；用于备份配置或 overlay、恢复系统，以及迁移、重置等危险操作前建立可恢复点。
+owner: system-pack/istoreos
+systems: istoreos
 triggers: 备份, 恢复, 回滚, 还原, 重置前, 迁移前, overlay 备份
 auto-use: prefer
 routing-group: istoreos-primary

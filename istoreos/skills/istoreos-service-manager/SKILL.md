@@ -1,6 +1,8 @@
 ---
 name: istoreos-service-manager
 description: 检查和管理 iStoreOS init.d 服务及对应 UCI 启用状态；用于服务未运行、开机未启动、端口未监听或安装后未生效，不负责 LuCI 核心恢复。
+owner: system-pack/istoreos
+systems: istoreos
 triggers: 服务没启动, 服务启动失败, 服务状态, 开机自启, 端口没监听, 安装后没生效, init.d
 negative-triggers: LuCI 打不开, LuCI 500, Docker 数据目录
 auto-use: prefer

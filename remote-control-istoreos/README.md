@@ -2,13 +2,14 @@
 
 LinkEase 维护的 AI agent skills 集合，用于沉淀跨 agent、跨系统、跨软件的可复用操作能力。
 
-当前已迁入的内容主要面向 iStoreOS/OpenWrt 远程控制和诊断场景。
+本目录是第三方 Agent 使用的 iStoreOS 远程控制组合入口，不再维护第二份系统知识。
+安装时会组合仓库中的规范 iStoreOS 系统包 `../istoreos/skills` 与本目录的 SSH/LuCI 传输技能。
 
 ## 当前内容
 
 - `quickstart-router-api`: 通过 QuickStart/LuCI API 读取和控制路由器，默认 Go helper，curl fallback。
 - `istoreos-ssh-ops`: SSH 入口 skill，只读识别系统、磁盘、服务、Docker、日志，并按症状转入专项 skill。
-- `istoreos-*`: 磁盘、LuCI、Docker、opkg、备份恢复、服务修复等专项 skills。
+- `../istoreos/skills/istoreos-*`: 磁盘、LuCI、Docker、opkg、备份恢复、服务修复等规范系统 skills。
 
 ## 安装
 

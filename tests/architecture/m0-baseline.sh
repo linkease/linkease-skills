@@ -52,9 +52,9 @@ remote_body_bytes="$(wc -c "$root"/remote-control-istoreos/*/SKILL.md | awk 'END
 diverged_count="$(awk -F '\t' '$4 == "diverged" { count++ } END { print count + 0 }' "$inventory")"
 
 printf '%s\n' \
-  "M0 baseline: PASS" \
-  "local_skill_count=$local_count" \
-  "remote_skill_count=$remote_count" \
-  "local_skill_body_bytes=$local_body_bytes" \
-  "remote_skill_body_bytes=$remote_body_bytes" \
-  "diverged_skill_count=$diverged_count"
+  "M0 recorded baseline: PASS" \
+  "current_local_skill_count=$local_count" \
+  "current_remote_extension_count=$remote_count" \
+  "current_local_skill_body_bytes=$local_body_bytes" \
+  "current_remote_extension_body_bytes=$remote_body_bytes" \
+  "recorded_diverged_skill_count=$diverged_count"
