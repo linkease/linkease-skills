@@ -41,8 +41,8 @@ for mode in on-device remote-control; do
   sh "$preset/install.sh" --target "$tmp/install-$mode" --copy >/dev/null
 done
 
-on_device_count="$(find "$tmp/install-on-device" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
-remote_count="$(find "$tmp/install-remote-control" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
+on_device_count="$(find "$tmp/install-on-device" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')"
+remote_count="$(find "$tmp/install-remote-control" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')"
 [ "$on_device_count" -eq 20 ] || fail "on-device preset expected 20 skills, got $on_device_count"
 [ "$remote_count" -eq 22 ] || fail "remote-control preset expected 22 skills, got $remote_count"
 [ ! -e "$tmp/install-on-device/target-ssh-controller" ] || fail "on-device preset contains SSH transport"

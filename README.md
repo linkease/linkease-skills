@@ -72,6 +72,9 @@ sh install.sh --platform istoreos --mode on-device --consumer generic \
 ```sh
 sh tools/generate-platforms.sh
 sh tools/verify-generated.sh
+sh tools/build-release.sh release
 ```
+
+每个 release 同时提供 `.tar.gz`、`.zip` 和带 SHA-256/source commit/tree digest 的清单。安装器使用原子目录交换，并在 `.linkease-skills/` 记录所有权；升级或卸载前若发现用户修改，会停止并保留原内容。完整流程见 [`docs/RELEASING.md`](docs/RELEASING.md)。
 
 旧 `--profile istoreos` 与 `--profile remote-control-istoreos` 命令在迁移期仍可使用，但会输出迁移提示。

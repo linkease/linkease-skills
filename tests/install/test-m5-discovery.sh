@@ -12,8 +12,8 @@ fail() {
 
 sh -n "$root/install.sh"
 list="$(sh "$root/install.sh" --list)"
-[ "$(printf '%s\n' "$list" | wc -l | tr -d ' ')" -eq 4 ] || fail "text list must contain four presets"
-sh "$root/install.sh" --list --json | jq -e 'length == 4' >/dev/null
+[ "$(printf '%s\n' "$list" | wc -l | tr -d ' ')" -eq 6 ] || fail "text list must contain six presets"
+sh "$root/install.sh" --list --json | jq -e 'length == 6' >/dev/null
 sh "$root/install.sh" --describe istoreos-remote-control |
   jq -e '.platform == "istoreos" and .mode == "remote-control"' >/dev/null
 
@@ -38,7 +38,7 @@ printf '%s\n' "$dry_output" | grep -Fx 'preset=istoreos-remote-control' >/dev/nu
 
 sh "$root/install.sh" --platform istoreos --mode on-device --consumer generic \
   --target-skills "$tmp/generic" >/dev/null
-[ "$(find "$tmp/generic" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')" -eq 20 ] ||
+[ "$(find "$tmp/generic" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')" -eq 20 ] ||
   fail "generic on-device install count is wrong"
 
 CODEX_HOME="$tmp/codex" sh "$root/install.sh" --platform istoreos \

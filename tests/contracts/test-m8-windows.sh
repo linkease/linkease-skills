@@ -59,8 +59,8 @@ sh "$root/tools/generate-platforms.sh" "$tmp/platforms" >/dev/null
 for mode in on-device remote-control; do
   sh "$tmp/platforms/windows/$mode/install.sh" --target "$tmp/install-$mode" >/dev/null
 done
-on_device="$(find "$tmp/install-on-device" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
-remote="$(find "$tmp/install-remote-control" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
+on_device="$(find "$tmp/install-on-device" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')"
+remote="$(find "$tmp/install-remote-control" -mindepth 2 -maxdepth 2 -name SKILL.md -type f | wc -l | tr -d ' ')"
 [ "$on_device" -eq 2 ] || fail "Windows on-device expected 2 skills, got $on_device"
 [ "$remote" -eq 3 ] || fail "Windows remote-control expected 3 skills, got $remote"
 [ -f "$tmp/install-remote-control/target-ssh-powershell-controller/SKILL.md" ] || fail "Windows SSH controller missing"

@@ -21,6 +21,8 @@ Usage:
   sh install.sh --describe PRESET_ID
   sh install.sh --platform PLATFORM --mode on-device|remote-control \
     --consumer codex|opencode|generic [--target-skills DIR] [--dry-run] [--force]
+  sh install.sh --platform PLATFORM --mode MODE --consumer CONSUMER --upgrade
+  sh install.sh --platform PLATFORM --mode MODE --consumer CONSUMER --uninstall
 
 Compatibility:
   sh install.sh --profile istoreos|remote-control-istoreos --target-skills DIR
@@ -44,6 +46,8 @@ while [ "$#" -gt 0 ]; do
     --target-config) shift; need_value "$@"; target_config="$1" ;;
     --profile) shift; need_value "$@"; legacy_profile="$1" ;;
     --dry-run) dry_run="1" ;;
+    --upgrade) action="upgrade" ;;
+    --uninstall) action="uninstall" ;;
     --copy) install_mode="copy" ;;
     --symlink) install_mode="symlink" ;;
     --force) force="1" ;;
@@ -142,7 +146,7 @@ fi
 case "${consumer:-generic}" in codex|opencode|generic) ;; *) echo "failed: consumer must be codex, opencode, or generic" >&2; exit 2 ;; esac
 
 destination="${target_skills:-$target_config/skills}"
-if [ "$dry_run" = "1" ]; then
+if [ "$dry_run" = "1" ] && [ "$action" != "uninstall" ]; then
   if [ "$force" = "1" ]; then replacement="replace"; else replacement="preserve"; fi
   printf '%s\n' \
     "preset=$preset_id" \
@@ -156,6 +160,25 @@ if [ "$dry_run" = "1" ]; then
   done
   exit 0
 fi
+
+if [ -z "$legacy_src" ] && [ -z "$target_config" ]; then
+  set -- --target "$destination"
+  case "$install_mode" in copy) set -- "$@" --copy ;; symlink) set -- "$@" --symlink ;; esac
+  [ "$force" = "0" ] || set -- "$@" --force
+  [ "$dry_run" = "0" ] || set -- "$@" --dry-run
+  case "$action" in
+    upgrade) set -- "$@" --upgrade ;;
+    uninstall) set -- "$@" --uninstall ;;
+  esac
+  exec sh "$preset_dir/install.sh" "$@"
+fi
+
+case "$action" in
+  upgrade|uninstall)
+    echo "failed: lifecycle operations are supported for generated presets installed into a skills directory" >&2
+    exit 2
+    ;;
+esac
 
 copy_or_link_dir() {
   from="$1"

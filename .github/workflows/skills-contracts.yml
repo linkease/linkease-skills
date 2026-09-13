@@ -1,0 +1,26 @@
+name: Device skills contracts
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install release test dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq zip unzip
+      - name: Run architecture, transport, context, and lifecycle contracts
+        run: |
+          sh tests/architecture/m0-baseline.sh
+          sh tests/architecture/test-catalog.sh
+          sh tests/architecture/test-m2-canonical.sh
+          sh tests/contracts/test-m3-transports.sh
+          sh tests/architecture/test-m4-generated.sh
+          sh tests/install/test-m5-discovery.sh
+          sh tests/context-budget/test-m7-istoreos.sh
+          sh tests/contracts/test-m8-windows.sh
+          sh tests/contracts/test-m9-macos.sh
+          sh tests/install/test-m10-lifecycle.sh
+          sh tests/install/test-m10-release.sh
