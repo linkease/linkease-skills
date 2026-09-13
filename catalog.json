@@ -61,6 +61,30 @@
       "skillsRoot": "skills",
       "generated": true,
       "generatedFrom": ["common", "windows", "transport.ssh"]
+    },
+    {
+      "id": "macos-on-device",
+      "schemaVersion": 1,
+      "title": "Use an agent on a macOS device",
+      "platform": "macos",
+      "mode": "on-device",
+      "aliases": ["macOS on device", "在 macOS 上使用", "本机维护 Mac"],
+      "path": "platforms/macos/on-device",
+      "skillsRoot": "skills",
+      "generated": true,
+      "generatedFrom": ["common", "macos"]
+    },
+    {
+      "id": "macos-remote-control",
+      "schemaVersion": 1,
+      "title": "Control a macOS device remotely",
+      "platform": "macos",
+      "mode": "remote-control",
+      "aliases": ["remote control macOS", "远程控制 macOS", "SSH 控制 Mac"],
+      "path": "platforms/macos/remote-control",
+      "skillsRoot": "skills",
+      "generated": true,
+      "generatedFrom": ["common", "macos", "transport.ssh"]
     }
   ]
 }

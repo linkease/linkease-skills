@@ -1,0 +1,9 @@
+{
+  "kernelName": "Darwin",
+  "architecture": "arm64",
+  "productName": "macOS",
+  "productVersion": "15.1",
+  "buildVersion": "24B83",
+  "initSystem": "launchd",
+  "features": ["launchctl", "unified-log"]
+}

@@ -27,6 +27,11 @@
 - [`platforms/windows/on-device`](platforms/windows/on-device)：AI 在 Windows 的 PowerShell 环境运行。
 - [`platforms/windows/remote-control`](platforms/windows/remote-control)：AI 通过 Windows OpenSSH + PowerShell 远程控制。
 
+### macOS
+
+- [`platforms/macos/on-device`](platforms/macos/on-device)：AI 直接在 Mac 上运行。
+- [`platforms/macos/remote-control`](platforms/macos/remote-control)：AI 在其他设备上，通过 SSH 控制 Mac。
+
 ## 安装器
 
 先查看可用预设：

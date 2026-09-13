@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "macos-on-device",
+  "title": "Use an agent on a macOS device",
+  "platform": "macos",
+  "mode": "on-device",
+  "aliases": [],
+  "path": ".",
+  "skillsRoot": "skills",
+  "generated": true,
+  "generatedFrom": [
+    "common",
+    "macos"
+  ],
+  "componentVersions": {
+    "common": "1.0.0",
+    "macos": "1.0.0"
+  },
+  "sourceDigest": "sha256:468aaa06857059bf4ec944100058158ab5318a3ae7af164e1c508436c110a619",
+  "treeDigest": "sha256:34b0c0c915a5a4bef93464e6d7e9c481b7d5d9c8218ad1561aff2617aa032af8"
+}

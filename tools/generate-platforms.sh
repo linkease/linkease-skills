@@ -134,3 +134,23 @@ printf '%s\n' \
   >"$output/windows/README.md"
 
 echo "ok: generated $output/windows"
+
+mkdir -p "$output/macos"
+macos_roots="components/system-packs/common/skills components/system-packs/macos/skills"
+make_preset macos on-device "Use an agent on a macOS device" \
+  '["common","macos"]' \
+  '{"common":"1.0.0","macos":"1.0.0"}' \
+  $macos_roots
+make_preset macos remote-control "Control a macOS device remotely" \
+  '["common","macos","transport.ssh"]' \
+  '{"common":"1.0.0","macos":"1.0.0","transport.ssh":"1.1.0"}' \
+  $macos_roots components/transports/ssh/skills/target-ssh-controller
+
+printf '%s\n' \
+  '# macOS skills' \
+  '' \
+  '- `on-device/`: the Agent runs on macOS.' \
+  '- `remote-control/`: the Agent uses SSH and a POSIX target shell.' \
+  >"$output/macos/README.md"
+
+echo "ok: generated $output/macos"

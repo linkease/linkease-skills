@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "macos-remote-control",
+  "title": "Control a macOS device remotely",
+  "platform": "macos",
+  "mode": "remote-control",
+  "aliases": [],
+  "path": ".",
+  "skillsRoot": "skills",
+  "generated": true,
+  "generatedFrom": [
+    "common",
+    "macos",
+    "transport.ssh"
+  ],
+  "componentVersions": {
+    "common": "1.0.0",
+    "macos": "1.0.0",
+    "transport.ssh": "1.1.0"
+  },
+  "sourceDigest": "sha256:b6e87d47b348585ef1aa31e878b7471ca49c98e95a5f83bae14ccbb39539efba",
+  "treeDigest": "sha256:38a8212847aa84c4d0ea0831c7061ba9a1c9833a225a0bd5ae505ad38ca68898"
+}
