@@ -24,3 +24,4 @@ jobs:
           sh tests/contracts/test-m9-macos.sh
           sh tests/install/test-m10-lifecycle.sh
           sh tests/install/test-m10-release.sh
+          sh tests/install/test-agent-bundle-export.sh
