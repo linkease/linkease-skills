@@ -10,7 +10,7 @@ fail() {
 }
 
 jq -e '
-  .version == 5 and
+  .version == 6 and
   (.prompts | length == 26) and
   ([.prompts[].id] | length == (unique | length)) and
   ([.prompts[].priority] | length == (unique | length)) and
@@ -28,6 +28,20 @@ jq -e '
     (.estimatedWriteBytes | type == "number" and . > 0) and
     ((.requiredContext // []) | type == "array"))
 ' "$catalog" >/dev/null || fail "iStoreOS home prompt contract is invalid"
+
+jq -e '
+  ([.prompts[] | select(.featured == true)] | length == 4) and
+  ([.prompts[] | select(.featured == true) | .homeRank] | sort == [1, 2, 3, 4]) and
+  ([.prompts[] | select(.featured == true) | .id] | length == (unique | length)) and
+  ([.prompts[] | select(.featured == true) | {id, homeRank}] | sort_by(.homeRank)) == [
+    {"id":"istoreos-health-check","homeRank":1},
+    {"id":"istoreos-network-unavailable","homeRank":2},
+    {"id":"istoreos-app-install-failed","homeRank":3},
+    {"id":"istoreos-storage-low","homeRank":4}
+  ] and
+  all(.prompts[] | select(.featured == true);
+    (.description | type == "string" and length > 0))
+' "$catalog" >/dev/null || fail "iStoreOS featured home prompts are invalid"
 
 jq -e '
   ([.prompts[].id] | index("istoreos-backup-restore") == null) and
