@@ -78,3 +78,23 @@ sh "$SKILLS/istoreos-download-acceleration/scripts/evidence.sh" "$TOOL" "$CLIENT
 SDK caches were separate from global Runtime selection. npm deliberately used the existing Node SDK; the separate cold SDK result above provides installation evidence. The gateway remains stable during all in-flight SDK downloads; logging init changes are restored after tests, preserving current UCI and original Agent configuration. Raw addresses, paths, traces and backups remain outside the repository.
 
 Skills changes add the concrete metadata failure diagnosis, distinguish SDK installation from npm acceptance, describe the tested go get variant, and align documentation with direct-race completion evidence. Canonical iStoreOS documentation and generated on-device/remote-control presets are synchronized. Ubuntu and other system packs remain unchanged. Catalog and generated-consistency checks pass. Real apk/ARM/glibc/other-version coverage is still not established; this follow-up does not claim universal source/mirror behavior.
+
+## Subsequent local compatibility review
+
+The review reproduced a legacy query regression before implementation: `opkg-find.sh <regexp> [limit]` had become a literal search that ignored the result limit. The related info regexp fallback and file query limit were also lost. A shared `legacy-query.sh` now preserves these opkg interfaces without refreshing feeds. Actual apk systems continue to use the detected native `package.sh` actions; legacy opkg queries report that boundary explicitly. Canonical iStoreOS sources and both generated iStoreOS presets were updated; other system packs were not changed.
+
+The following commands passed in the current skills checkout after the fix:
+
+```sh
+sh components/system-packs/istoreos/tests/test_legacy_package_queries.sh
+sh components/system-packs/istoreos/drills/profile-smoke.sh
+sh tools/verify-generated.sh
+sh tests/architecture/test-catalog.sh
+sh tests/architecture/test-m4-generated.sh
+sh tests/architecture/test-runtime-release-gate.sh
+sh tests/context-budget/test-m7-istoreos.sh
+sh tests/install/test-agent-bundle-export.sh
+sh tests/install/test-reasonix-consumer.sh "$REASONIX_SOURCE_ROOT"
+```
+
+The Reasonix check uses its actual loader with temporary test resources. These are local checks, not another device run. The earlier device evidence above applies to the previously deployed bundle and gateway; the latest compatibility fixes have not been deployed or validated on that device.

@@ -59,6 +59,7 @@ done
 sh "$root/tests/test_download_acceleration_dispatch.sh"
 sh "$root/tests/test_system_helpers.sh"
 sh "$root/tests/test_package_runtime_environment.sh"
+sh "$root/tests/test_legacy_package_queries.sh"
 sh "$root/tests/test_runtime_install.sh"
 sh "$root/tests/test_runtime_diagnosis.sh"
 sh "$root/tests/test_dependency_commands.sh"
