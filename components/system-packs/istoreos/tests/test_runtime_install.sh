@@ -49,6 +49,11 @@ case "$*" in
  if [ "${TEST_WRONG_SOURCE:-}" = 1 ]; then shift 5; exec python3 "$@"; fi ;;
 esac
 EOF
+cat >"$tmp/bin/getconf" <<'EOF'
+#!/bin/sh
+[ "${TEST_LIBC:-unknown}" = glibc ] || exit 1
+echo 'glibc 2.39'
+EOF
 chmod +x "$tmp/bin/"*
 export PATH="$tmp/bin:$PATH"
 install="$pack/skills/istoreos-mise-runtime/scripts/install.sh"
@@ -86,5 +91,15 @@ grep -F 'os=unknown-linux-musl|arch=aarch64' "$TEST_CALLS"
 : >"$TEST_CALLS"
 if KAIPLUS_CONFIRMED=1 TEST_ARCH=mips sh "$install" python 3.13.7 >"$tmp/out" 2>&1; then exit 1; fi
 grep -F unsupported-architecture "$tmp/out"
+! grep -F 'mise install' "$TEST_CALLS"
+rm "$tmp/system/lib/ld-musl-x86_64.so.1"
+: >"$TEST_CALLS"
+KAIPLUS_CONFIRMED=1 TEST_LIBC=glibc sh "$install" python 3.13.7 >"$tmp/out"
+grep -F 'os=unknown-linux-gnu|arch=x86_64' "$TEST_CALLS"
+TEST_LIBC=glibc sh "$pack/skills/istoreos-mise-runtime/scripts/check.sh" python >"$tmp/facts"
+grep -Fx 'libc=glibc' "$tmp/facts"
+: >"$TEST_CALLS"
+if KAIPLUS_CONFIRMED=1 TEST_LIBC=unknown sh "$install" python 3.13.7 >"$tmp/out" 2>&1; then exit 1; fi
+grep -F unknown-libc "$tmp/out"
 ! grep -F 'mise install' "$TEST_CALLS"
 echo 'ok: runtime version, platform, integrity and activation contracts passed'
