@@ -17,10 +17,14 @@ configured_home="$(uci -q get mise.main.runtime_dir)"
 [ "$HOME" = "$configured_home" ] || { echo 'failed: wrong runtime HOME; enter mise-exec' >&2; exit 4; }
 case "$PATH" in "$HOME/.local/share/mise/shims:"*) ;; *) echo 'failed: missing integrated shims' >&2; exit 4 ;; esac
 command -v mise >/dev/null 2>&1 && command -v ks-cli >/dev/null 2>&1 || { echo 'failed: mise or ks-cli is missing; use the system-integrated package path' >&2; exit 4; }
-if [ "$(ks-cli mise settings get skip_checksum)" != false ]; then
-  echo 'failed: integrity-disabled: checksum verification must remain enabled; inspect configuration' >&2
+# There is no global skip_checksum setting in the inspected mise contract.
+# Go owns its SDK checksum switch; Node owns verify; Python core verifies artifacts.
+if [ "$runtime" = go ] && [ "$(ks-cli mise settings get go.skip_checksum)" != false ]; then
+  echo 'failed: integrity-disabled: Go SDK checksum verification must remain enabled' >&2
   exit 4
 fi
+global_gpg="$(ks-cli mise settings get gpg_verify 2>/dev/null || true)"
+[ "$global_gpg" != false ] || { echo 'failed: integrity-disabled: global signature verification was disabled' >&2; exit 4; }
 if [ "$runtime" = python ]; then
   arch="$(uname -m)"
   case "$arch" in x86_64|aarch64) ;; *) echo "failed: unsupported-architecture: no verified precompiled mapping for $arch" >&2; exit 4 ;; esac

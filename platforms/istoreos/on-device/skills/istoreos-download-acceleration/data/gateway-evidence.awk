@@ -5,12 +5,12 @@ function metadata(p) {
   return p == "/github.com/google/uuid/@v/v1.6.0.mod" || p == "/github.com/google/uuid/@v/v1.6.0.info"
 }
 function artifact(p) {
-  if (tool == "pip") return p ~ /\/idna-3\.10-[^/]+\.whl$/
+  if (tool == "pip") return p ~ /\/idna-3\.10-[^\/]+\.whl$/
   if (tool == "npm") return p == "/is-number/-/is-number-7.0.0.tgz"
   return p == "/github.com/google/uuid/@v/v1.6.0.zip"
 }
 function urlpath(u) {
-  sub(/^https?:\/\/[^/]+/, "", u)
+  sub(/^https?:\/\/[^\/]+/, "", u)
   sub(/[?#].*$/, "", u)
   sub(/:$/, "", u)
   return u
@@ -51,15 +51,16 @@ FILENAME == ARGV[2] {
   expected=(tool == "pip" ? "pypi-files" : tool == "go" ? "golang" : "npm")
   if (mirror != expected) next
   if ($0 ~ /download gateway GET/) {
-    for (i=1;i<=NF;i++) if ($i ~ /^\//) requested[$i]=1
+    # GET events alone do not prove a completed download.
   }
   if ($0 ~ /download gateway done/) {
+    # done is emitted only for StatusOK, including races without GET events.
     p=urlpath(field("url")); if (field("bytes")+0 > 0) completed[p]=1
   }
 }
 END {
-  for (p in cm) if (gm[p] || (requested[p] && completed[p])) meta=1
-  for (p in ca) if (requested[p] && completed[p]) art=1
+  for (p in cm) if (gm[p] || completed[p]) meta=1
+  for (p in ca) if (completed[p]) art=1
   print "gateway_metadata=" (meta ? "matched" : "missing")
   print "gateway_artifact=" (art ? "matched" : "missing")
   if (direct) { print "result=client-direct-observed"; exit 4 }

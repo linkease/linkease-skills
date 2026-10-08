@@ -20,6 +20,6 @@
     "openwrt": "1.0.0",
     "istoreos": "2.0.0"
   },
-  "sourceDigest": "sha256:d9e181ae8025ad34bb924db7b772d95ab0ae8fa3ba035d722c9c92e3eaac9643",
-  "treeDigest": "sha256:df48daa0ebbaced37a7da859785b3ea8b2a6744ab51634fec4ae13f055b71826"
+  "sourceDigest": "sha256:4e99f58709b1edfd5403a14f5c1fe69dc64cfc72ed7be45b6bb53ff598e0a572",
+  "treeDigest": "sha256:7b85baba248c15ba2e522d33138483841680c7d1b3a35a289b665b51cbc880a0"
 }

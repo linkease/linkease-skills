@@ -59,7 +59,7 @@ sh install.sh --platform istoreos --mode on-device --consumer generic \
 
 Reasonix 的通用 Skill Store 通过自定义 skills 搜索目录消费相同预设：使用 `--consumer generic --target-skills DIR`，先 dry-run，再将该目录加入 Reasonix 配置的 `[skills].paths`（loader 中的 CustomPaths）。也可选择它实际扫描的项目 `.reasonix/skills` 或 `.agents/skills` 目录。按 Agent 是否在目标设备上运行选择 on-device 或 remote-control；不要把 Ubuntu 控制端当成 iStoreOS 目标系统。仓库的实际 Reasonix loader 测试覆盖两个模式的描述、触发词、系统路由元数据和辅助脚本发现。
 
-Kai 内置的 vendored System Pack/source lock 属于另一条同步流程，本次不会自动替换其快照。iStoreOS 的运行时和依赖合约见 [`docs/architecture/runtime-download-contract.md`](docs/architecture/runtime-download-contract.md)；其他系统继续遵循各自技能。本次实现的命令、结果与未覆盖设备见 [`docs/verification/runtime-download-2026-10-08.md`](docs/verification/runtime-download-2026-10-08.md)。
+Kai 源代码内置的 vendored System Pack/source lock 属于另一条同步流程；设备已安装的 Agent bundle 可按用户授权单独导出替换。iStoreOS 的运行时和依赖合约见 [`docs/architecture/runtime-download-contract.md`](docs/architecture/runtime-download-contract.md)；其他系统继续遵循各自技能。本次实现的命令、结果与未覆盖设备见 [`docs/verification/runtime-download-2026-10-08.md`](docs/verification/runtime-download-2026-10-08.md)；后续授权真机结果与未通过项见 [`docs/verification/runtime-device-2026-10-08.md`](docs/verification/runtime-device-2026-10-08.md)。
 
 安装器从不默认安装所有平台。若设备或使用方式不明确，它只会要求补充缺少的那一项。
 

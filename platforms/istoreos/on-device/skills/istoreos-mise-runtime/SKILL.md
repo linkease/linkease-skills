@@ -13,13 +13,13 @@ cost: medium
 
 # iStoreOS Runtime Environment
 
-Use for iStoreOS/OpenWrt with iStore runtime integration. Ubuntu uses its own Linux runtime workflow; do not prescribe iStore HOME, UCI or mise-exec there. Installation authorization does not imply global version/configuration changes.
+Use for iStoreOS/OpenWrt with iStore runtime integration. Ubuntu uses its own Linux runtime workflow; do not prescribe iStore HOME, UCI or mise-exec there. Installation authorization does not imply global version/configuration changes. For read-only probes set MISE_AUTO_INSTALL=0 and MISE_NOT_FOUND_AUTO_INSTALL=0; do not trigger missing SDK installs through shims or mise exec.
 
 ## Workflow
 
 1. Run `sh scripts/check.sh [python|node|go|all]` for release, architecture/libc, tools, package manager, runtime_dir, space and environment. Unknown libc/arch needs evidence, not an assumed archive. Verify persistent storage/mounts before installing; inspect overlay or low space with storage-path.
 2. If integration is absent, use package-manager to discover and install the actual feed's integrated mise package. Verify mise-exec, mise, integration files and configured runtime_dir; no upstream curl bypass. Source package names do not prove feed availability.
-3. Enter `mise-exec`, then run mise, ks-cli and runtime/dependency commands in that shell. HOME and shims come from system integration; cwd is chosen separately. For local/remote noninteractive calls use `scripts/exec.sh PROGRAM_FILE [ARG...]`; it launches the staged program in the shell's environment. Each independent call re-enters integration. Read `data/execution.md` when transport or legacy acceleration matters.
+3. Enter `mise-exec`, then run mise, ks-cli and runtime/dependency commands in that shell. mise-exec does not forward command arguments: never use `mise-exec sh -c ...` or `mise-exec -- COMMAND`. HOME and shims come from system integration; cwd is chosen separately. For local/remote noninteractive calls use `scripts/exec.sh PROGRAM_FILE [ARG...]`; it launches the staged program in the shell's environment. Each independent call re-enters integration. Read `data/execution.md` when transport or legacy acceleration matters.
 4. Resolve the user's version against the target's actual backend/platform. Python needs a verified complete version; do not rely on an anomalous latest/partial result. Node lts is an option only without a requested version. Show the selected version and installation/configuration effects within the user's existing authorization.
 5. Run `KAIPLUS_CONFIRMED=1 sh scripts/install.sh <python|node|go> <version> [none|project|global]`. It enters mise-exec itself, uses ks-cli preflight/install and verifies the exact installed runtime. Default `none` installs without selecting a global version. `project` changes the current project's mise configuration; `global` changes this integrated HOME's global selection.
 6. For dependencies, continue with download-acceleration inside the same environment; Python defaults to an activated project venv. Package downloads inside a runtime command are not automatically accelerated by ks-cli mise.

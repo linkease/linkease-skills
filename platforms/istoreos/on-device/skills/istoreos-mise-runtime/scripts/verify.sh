@@ -5,7 +5,7 @@ version="${2:?resolved version is required}"
 here="$(CDPATH= cd -- "$(dirname "$0")" && pwd -P)"
 if [ "${ISTORE_RUNTIME_ENTERED:-}" != 1 ]; then exec sh "$here/exec.sh" "$here/verify.sh" "$@"; fi
 spec="$runtime@$version"
-export MISE_NOT_FOUND_AUTO_INSTALL=0
+export MISE_AUTO_INSTALL=0 MISE_NOT_FOUND_AUTO_INSTALL=0
 installed_dir="$(mise where "$spec")"
 [ -n "$installed_dir" ] && [ -d "$installed_dir" ] || { echo 'failed: runtime-not-installed' >&2; exit 4; }
 case "$runtime" in

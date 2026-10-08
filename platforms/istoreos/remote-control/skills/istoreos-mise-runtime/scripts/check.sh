@@ -33,6 +33,13 @@ if [ -n "$runtime_dir" ] && [ "${HOME:-}" = "$runtime_dir" ]; then
   case "$PATH" in "$HOME/.local/share/mise/shims:"*) environment=integrated ;; *) environment=missing-shims ;; esac
 else environment=enter-mise-exec; fi
 printf 'environment=%s\n' "$environment"
+for var in XDG_DATA_HOME XDG_CACHE_HOME XDG_CONFIG_HOME MISE_DATA_DIR MISE_CACHE_DIR MISE_CONFIG_DIR; do
+  value=$(printenv "$var" 2>/dev/null || true)
+  printf '%s=%s\n' "$var" "${value:-unset}"
+done
+if [ -n "${XDG_DATA_HOME:-}" ] && [ -z "${MISE_DATA_DIR:-}" ]; then
+  echo 'diagnosis=agent-xdg-runtime-conflict: use exec.sh or updated integrated mise; HOME alone does not select mise data storage'
+fi
 if command -v mise >/dev/null 2>&1; then
   mise --version
   # Avoid reading a different HOME's installed versions or creating integration directories.

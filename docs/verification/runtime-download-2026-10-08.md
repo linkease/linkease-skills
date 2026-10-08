@@ -2,6 +2,8 @@
 
 Date: 2026-10-08. Scope: agentflow-3011 / kspeeder; primary delivery is istore-ai-helper/linkease-skills.
 
+This report records the initial local-only phase. The subsequent authorized device results, including failed repeatability/Node acceptance, are in [runtime-device-2026-10-08.md](runtime-device-2026-10-08.md).
+
 M1–M5 implementation and local acceptance completed. These results are from this task checkout, not historical device tests. No target device was supplied/authorized; device acceptance remains unexecuted.
 
 ## Delivery and boundaries

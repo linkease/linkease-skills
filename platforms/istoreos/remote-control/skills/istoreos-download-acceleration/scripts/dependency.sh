@@ -15,7 +15,7 @@ if [ "${ISTORE_RUNTIME_ENTERED:-}" != 1 ]; then
   exec sh "$runtime_scripts/exec.sh" "$here/dependency.sh" "$tool" "$version" -- "$@"
 fi
 [ "$HOME" = "$(uci -q get mise.main.runtime_dir)" ] || { echo 'failed: incorrect integration HOME' >&2; exit 4; }
-export MISE_NOT_FOUND_AUTO_INSTALL=0
+export MISE_AUTO_INSTALL=0 MISE_NOT_FOUND_AUTO_INSTALL=0
 if [ "$tool" != pip ] && [ "$selected" = 0 ]; then
   exec mise exec "$runtime@$version" -- sh "$here/dependency.sh" --selected "$tool" "$version" -- "$@"
 fi

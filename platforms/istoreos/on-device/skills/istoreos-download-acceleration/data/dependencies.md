@@ -44,12 +44,12 @@ Require actual metadata /is-number and artifact /is-number/-/is-number-7.0.0.tgz
 The recipe creates a real module with `require github.com/google/uuid v1.6.0` and a program importing it and parsing/printing a fixed UUID. It uses independent GOMODCACHE/GOCACHE/GOPATH, GOTOOLCHAIN=local and process-scoped GOENV=off (so persisted private-module bypasses cannot contaminate this public demo), then:
 
 ```sh
-ks-cli go mod download -x
+ks-cli go mod download -x github.com/google/uuid@v1.6.0
 ks-cli go mod verify
 ks-cli go run .
 ```
 
-Require module .mod/.info and .zip requests under `/github.com/google/uuid/@v/`, go.sum verification and the actual program output. Keep GOSUMDB enabled; private-module skip patterns and GOINSECURE need separate review. This demo clears private-module bypass patterns only in its process. Go SDK tarball download is a different route. GOTOOLCHAIN=local prevents a dependency test silently downloading another SDK.
+Download the explicit module so Go writes its package checksum to go.sum even with a pruned module graph; verify alone does not populate that entry. Require module .mod/.info and .zip requests under `/github.com/google/uuid/@v/`, go.sum verification and the actual program output. Keep GOSUMDB enabled; private-module skip patterns and GOINSECURE need separate review. This demo clears private-module bypass patterns only in its process. Go SDK tarball download is a different route. GOTOOLCHAIN=local prevents a dependency test silently downloading another SDK.
 
 ## Gateway evidence and acceptance
 
