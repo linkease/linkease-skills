@@ -34,7 +34,15 @@ if [ -n "$runtime_dir" ] && [ "${HOME:-}" = "$runtime_dir" ]; then
 else environment=enter-mise-exec; fi
 printf 'environment=%s\n' "$environment"
 for var in XDG_DATA_HOME XDG_CACHE_HOME XDG_CONFIG_HOME MISE_DATA_DIR MISE_CACHE_DIR MISE_CONFIG_DIR; do
-  value=$(printenv "$var" 2>/dev/null || true)
+  # These fixed names need no external printenv binary or dynamic eval.
+  case "$var" in
+    XDG_DATA_HOME) value=${XDG_DATA_HOME:-} ;;
+    XDG_CACHE_HOME) value=${XDG_CACHE_HOME:-} ;;
+    XDG_CONFIG_HOME) value=${XDG_CONFIG_HOME:-} ;;
+    MISE_DATA_DIR) value=${MISE_DATA_DIR:-} ;;
+    MISE_CACHE_DIR) value=${MISE_CACHE_DIR:-} ;;
+    MISE_CONFIG_DIR) value=${MISE_CONFIG_DIR:-} ;;
+  esac
   printf '%s=%s\n' "$var" "${value:-unset}"
 done
 if [ -n "${XDG_DATA_HOME:-}" ] && [ -z "${MISE_DATA_DIR:-}" ]; then

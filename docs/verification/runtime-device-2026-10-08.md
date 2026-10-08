@@ -33,7 +33,7 @@ The pip failure has concrete gateway evidence: a cached selected PyPI artifact m
 
 ## Corrections found by device execution
 
-Separate failing regression commits precede behavior changes. Skills corrections include actual mise integrity setting names (02a32e1 → ec30828), explicit Go package checksums and disabled implicit SDK installation (4f7b7e3 → 2db6cd6), effective forbidden-side-effect assertions (d8e98c7), legacy Agent XDG compatibility (c8626ac → d5dacdc), and gateway race/BusyBox awk compatibility (067b810 → fe46529). No other platform's preset or default configuration changed.
+Separate failing regression commits precede behavior changes. Skills corrections include actual mise integrity setting names (02a32e1 → ec30828), explicit Go package checksums and disabled implicit SDK installation (4f7b7e3 → 2db6cd6), effective forbidden-side-effect assertions (d8e98c7), legacy Agent XDG compatibility (c8626ac → d5dacdc), gateway race/BusyBox awk compatibility (067b810 → fe46529), and environment reporting without an unavailable printenv binary (9911d6e → 1400c1a). No other platform's preset or default configuration changed.
 
 The SSH test harness initially allowed Kai to read remaining shell commands from stdin. Those runs are not clean CLI acceptance evidence. Later Kai calls explicitly use `</dev/null`. A failed authorization gate in the final direct smoke harness was also corrected by passing the user's already-granted authorization as KAIPLUS_CONFIRMED=1; it did not install or download before that correction. Native failed logs were retained.
 
@@ -70,6 +70,8 @@ Successful local commands after these corrections:
 - `rtk sh components/system-packs/istoreos/tests/test_dependency_gateway_evidence.sh`
 - `rtk sh tests/architecture/test-runtime-release-gate.sh`
 - `rtk sh tests/architecture/test-catalog.sh`
+- `rtk sh tests/architecture/test-m4-generated.sh`
+- `rtk sh components/system-packs/istoreos/tests/test_package_runtime_environment.sh`
 - `rtk sh tools/generate-platforms.sh`
 - `rtk sh tools/verify-generated.sh`
 - `rtk sh tests/install/test-agent-bundle-export.sh`
