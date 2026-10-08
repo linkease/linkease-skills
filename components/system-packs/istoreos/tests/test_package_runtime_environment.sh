@@ -64,6 +64,8 @@ grep -Fx 'package_manager=apk' "$tmp/facts"
 sh "$pkg" search mise >"$tmp/search"
 KAIPLUS_CONFIRMED=1 sh "$pkg" install mise
 grep -Fx 'apk add mise' "$TEST_CALLS"
+if KAIPLUS_CONFIRMED=1 sh "$pkg" install absent-package >"$tmp/out" 2>&1; then exit 1; fi
+grep -F package-unavailable "$tmp/out"
 : >"$tmp/system/usr/lib/opkg/status"
 if sh "$pkg" detect >"$tmp/out" 2>&1; then echo 'ambiguous databases accepted' >&2; exit 1; fi
 grep -F ambiguous "$tmp/out"
@@ -77,11 +79,18 @@ case "$PATH" in "$HOME/.local/share/mise/shims:"*) ;; *) exit 8 ;; esac
 # Runtime dir is HOME, not necessarily cwd. Workdir is an explicit argument.
 [ "$PWD" = "$1" ]
 [ "$2" = 'argument with spaces' ]
+[ "$3" = 'literal '\''quote $(false) `false`' ]
 printf '%s\n' "environment_ok=$HOME"
 EOF
-sh "$runner" "$tmp/program.sh" "$PWD" 'argument with spaces' >"$tmp/run1"
-sh "$runner" "$tmp/program.sh" "$PWD" 'argument with spaces' >"$tmp/run2"
+sh "$runner" "$tmp/program.sh" "$PWD" 'argument with spaces' 'literal '\''quote $(false) `false`' >"$tmp/run1"
+sh "$runner" "$tmp/program.sh" "$PWD" 'argument with spaces' 'literal '\''quote $(false) `false`' >"$tmp/run2"
 cmp "$tmp/run1" "$tmp/run2"
+mkdir -p "$tmp/system/lib"
+: >"$tmp/system/lib/ld-musl-x86_64.so.1"
+sh "$pack/skills/istoreos-mise-runtime/scripts/check.sh" python >"$tmp/check"
+grep -Fx 'libc=musl' "$tmp/check"
+grep -Fx 'environment=enter-mise-exec' "$tmp/check"
+! grep -F update "$TEST_CALLS"
 printf '%s\n' 'exit 17' >"$tmp/fail.sh"
 code=0
 sh "$runner" "$tmp/fail.sh" || code=$?
