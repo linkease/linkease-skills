@@ -13,7 +13,7 @@ cost: medium
 
 # iStoreOS Runtime Environment
 
-Use for iStoreOS/OpenWrt with iStore runtime integration. Ubuntu uses its own Linux runtime workflow; do not prescribe iStore HOME, UCI or mise-exec there. Installation authorization does not imply global version/configuration changes.
+Use for iStoreOS/OpenWrt with iStore runtime integration. Ubuntu uses its own Linux runtime workflow; do not prescribe iStore HOME, UCI or mise-exec there. Installation authorization does not imply global version/configuration changes. For read-only probes set MISE_AUTO_INSTALL=0 and MISE_NOT_FOUND_AUTO_INSTALL=0; do not trigger missing SDK installs through shims or mise exec.
 
 ## Workflow
 

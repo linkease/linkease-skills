@@ -15,7 +15,7 @@ fi
 umask 077
 mkdir -p "$work"
 cd "$work"
-export MISE_NOT_FOUND_AUTO_INSTALL=0
+export MISE_AUTO_INSTALL=0 MISE_NOT_FOUND_AUTO_INSTALL=0
 # Capture the actual adapter URL/port without persistent client configuration.
 ks-cli --explain --json "$tool" install >"$work/plan.json"
 status=0
@@ -62,7 +62,7 @@ func main() {
   fmt.Println(value.String())
 }
 EOF
-      sh "$here/dependency.sh" go "$version" -- mod download -x || return $?
+      sh "$here/dependency.sh" go "$version" -- mod download -x github.com/google/uuid@v1.6.0 || return $?
       sh "$here/dependency.sh" go "$version" -- mod verify || return $?
       sh "$here/dependency.sh" go "$version" -- run . || return $?
       ;;
