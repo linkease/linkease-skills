@@ -39,10 +39,13 @@ case "$*" in
 'mise settings get node.mirror_url') exit 1 ;;
 'mise settings get node.verify') echo true ;;
 'mise settings get node.gpg_verify') echo true ;;
+'mise settings get skip_checksum') echo "${TEST_SKIP_CHECKSUM:-false}" ;;
 'mise settings get not_found_auto_install') echo true ;;
 'mise exec go@1.27.1 -- go env GOROOT') echo "$TEST_INSTALL" ;;
 'mise install '* )
  if [ "${TEST_INSTALL_FAILURE:-}" = 1 ]; then echo 'no precompiled python found for this platform' >&2; exit 9; fi ;;
+'mise exec python@3.13.7 -- python -c '*)
+ if [ "${TEST_WRONG_SOURCE:-}" = 1 ]; then shift 5; exec python3 "$@"; fi ;;
 esac
 EOF
 chmod +x "$tmp/bin/"*
@@ -69,6 +72,12 @@ code=0
 KAIPLUS_CONFIRMED=1 TEST_INSTALL_FAILURE=1 sh "$install" python 3.13.7 >"$tmp/out" 2>&1 || code=$?
 [ "$code" = 9 ]
 grep -F precompiled-unavailable "$tmp/out"
+: >"$TEST_CALLS"
+if KAIPLUS_CONFIRMED=1 TEST_SKIP_CHECKSUM=true sh "$install" node 24.21.0 >"$tmp/out" 2>&1; then exit 1; fi
+grep -F integrity-disabled "$tmp/out"
+! grep -F 'mise install' "$TEST_CALLS"
+if TEST_WRONG_SOURCE=1 sh "$pack/skills/istoreos-mise-runtime/scripts/verify.sh" python 3.13.7 >"$tmp/out" 2>&1; then echo 'system interpreter accepted as mise installation' >&2; exit 1; fi
+grep -F AssertionError "$tmp/out"
 : >"$TEST_CALLS"
 if KAIPLUS_CONFIRMED=1 TEST_ARCH=mips sh "$install" python 3.13.7 >"$tmp/out" 2>&1; then exit 1; fi
 grep -F unsupported-architecture "$tmp/out"
