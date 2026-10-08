@@ -17,7 +17,7 @@ grep -F 'new directory' "$tmp/out"
 grep -Fx preserve "$tmp/existing/sentinel"
 sh -n "$smoke"
 mkdir -p "$tmp/bin" "$tmp/home"
-mkdir -p "$tmp/sdk"
+mkdir -p "$tmp/sdk/bin"
 export TEST_RUNTIME="$tmp/home"
 export TEST_SDK="$tmp/sdk"
 cat >"$tmp/bin/uci" <<'EOF'
@@ -29,6 +29,7 @@ cat >"$tmp/bin/mise" <<'EOF'
 if [ "$1" = where ]; then echo "$TEST_SDK"; exit 0; fi
 [ "$1" = exec ] && [ "$3" = -- ] || exit 2
 shift 3
+export PATH="$TEST_SDK/bin:$PATH"
 exec "$@"
 EOF
 cat >"$tmp/bin/go" <<'EOF'
@@ -36,6 +37,7 @@ cat >"$tmp/bin/go" <<'EOF'
 case "$*" in
 'env GOSUMDB') echo sum.golang.org ;;
 'env GOINSECURE') echo ;;
+'version') echo 'go version go1.27.1 linux/amd64' ;;
 esac
 EOF
 cat >"$tmp/bin/ks-cli" <<'EOF'
@@ -61,6 +63,7 @@ case "$*" in
 esac
 EOF
 chmod +x "$tmp/bin/"*
+cp "$tmp/bin/go" "$tmp/sdk/bin/go"
 PATH="$TEST_RUNTIME/.local/share/mise/shims:$tmp/bin:$PATH" HOME="$TEST_RUNTIME" ISTORE_RUNTIME_ENTERED=1 KAIPLUS_CONFIRMED=1 sh "$smoke" go 1.27.1 "$tmp/go-project" >"$tmp/out" 2>&1
 # Download + verify is insufficient unless the actual importing program runs.
 grep -F '123e4567-e89b-12d3-a456-426614174000' "$tmp/out"

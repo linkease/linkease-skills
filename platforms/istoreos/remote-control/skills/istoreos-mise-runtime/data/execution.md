@@ -28,6 +28,8 @@ When the Agent cannot stage files, send the complete payload directly as stdin t
 
 Within the payload create/activate the venv or use `mise exec VERSION -- COMMAND`. Activation and cwd are shell state; repeat them in a later independent call. Keep payloads local to the target and avoid embedding credentials. Check command exit codes before reporting success.
 
+Validate HOME and shims at the integrated entry boundary. After explicit Node/Go selection, mise exec may remove shims from PATH; this is expected, not a broken integration. dependency.sh checks the selected child's HOME, physical SDK bin directory and exact version instead. Python venv activation may prepend its bin directory while retaining shims. Do not reapply an entry-shell PATH rule inside a selected SDK child.
+
 ## Legacy acceleration environment
 
 The inspected integration may inject `MISE_NODE_MIRROR_URL` and `MISE_NODE_VERIFY=0`. ks-cli inherits these. For a core Node command, in its scoped subshell unset that legacy mirror, set `MISE_NODE_VERIFY=1`, and inspect node.verify/mirror_url. A persisted mirror or disabled checksum/GPG setting needs diagnosis, not silent global changes. Preserve valid user settings and system HOME/PATH. ks-cli supplies final URL replacements/Go SDK mirror using actual installed ports; never copy default-port URLs from the old integration probe into new recipes.

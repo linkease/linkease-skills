@@ -8,7 +8,9 @@ runtime_environment_check() {
   [ "${HOME:-}" = "$integrated_home" ] && [ -d "$integrated_home" ] && [ -w "$integrated_home" ] || {
     echo 'failed: incorrect integration HOME or unavailable runtime directory' >&2; return 4;
   }
-  # Explicit SDK selection and venv activation may legitimately precede shims.
+  # mise exec deliberately replaces shims with selected SDK bin directories.
+  # Only its checked child path may use this mode; callers verify SDK identity.
+  if [ "${1:-entry}" = selected ]; then return 0; fi
   case ":${PATH:-}:" in *":$HOME/.local/share/mise/shims:"*) ;; *)
     echo 'failed: missing integrated shims; inspect mise-exec' >&2; return 4 ;;
   esac

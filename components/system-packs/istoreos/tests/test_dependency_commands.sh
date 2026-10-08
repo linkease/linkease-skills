@@ -3,9 +3,10 @@ set -eu
 pack="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd -P)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT HUP INT TERM
-mkdir -p "$tmp/bin" "$tmp/system/etc" "$tmp/runtime" "$tmp/venv/bin"
+mkdir -p "$tmp/bin" "$tmp/system/etc" "$tmp/runtime" "$tmp/venv/bin" "$tmp/sdk/bin"
 echo 'DISTRIB_ID=iStoreOS' >"$tmp/system/etc/openwrt_release"
 export ISTORE_SYSTEM_ROOT="$tmp/system" TEST_RUNTIME="$tmp/runtime" TEST_CALLS="$tmp/calls"
+export TEST_SDK="$tmp/sdk"
 cat >"$tmp/bin/uci" <<'EOF'
 #!/bin/sh
 echo "$TEST_RUNTIME"
@@ -17,6 +18,7 @@ exec /bin/sh
 EOF
 cat >"$tmp/bin/mise" <<'EOF'
 #!/bin/sh
+if [ "$1" = where ]; then echo "$TEST_SDK"; exit 0; fi
 [ "$1" = exec ] && [ "$3" = -- ] || exit 2
 printf '%s\n' "selected=$2" >>"$TEST_CALLS"
 shift 3
@@ -25,6 +27,7 @@ if [ "${TEST_MISSING_RUNTIME:-0}" = 1 ]; then
   echo 'runtime is not installed' >&2
   exit 4
 fi
+if [ "${TEST_BAD_SELECTED_PATH:-0}" != 1 ]; then export PATH="$TEST_SDK/bin:$PATH"; fi
 exec "$@"
 EOF
 cat >"$tmp/bin/ks-cli" <<'EOF'
@@ -36,11 +39,16 @@ cat >"$tmp/bin/npm" <<'EOF'
 #!/bin/sh
 echo true
 EOF
+cat >"$tmp/sdk/bin/node" <<'EOF'
+#!/bin/sh
+echo "v${TEST_NODE_VERSION:-24.21.0}"
+EOF
 cat >"$tmp/bin/go" <<'EOF'
 #!/bin/sh
 case "$*" in
   'env GOSUMDB') echo "${TEST_SUMDB:-sum.golang.org}" ;;
   'env GOINSECURE') echo "${TEST_GO_INSECURE:-}" ;;
+  'version') echo 'go version go1.27.1 linux/amd64' ;;
 esac
 EOF
 cat >"$tmp/venv/bin/activate" <<'EOF'
@@ -49,6 +57,9 @@ EOF
 printf '%s\n' '#!/bin/sh' 'exit 0' >"$tmp/venv/bin/python"
 printf '%s\n' '#!/bin/sh' 'exit 0' >"$tmp/venv/bin/pip"
 chmod +x "$tmp/bin/"* "$tmp/venv/bin/python" "$tmp/venv/bin/pip"
+chmod +x "$tmp/sdk/bin/node"
+cp "$tmp/bin/go" "$tmp/sdk/bin/go"
+cp "$tmp/sdk/bin/node" "$tmp/bin/node"
 export PATH="$tmp/bin:$PATH"
 dispatch="$pack/skills/istoreos-download-acceleration/scripts/dispatch.sh"
 if sh "$dispatch" npm 24.21.0 -- install >"$tmp/out" 2>&1; then exit 1; fi
@@ -56,6 +67,13 @@ if sh "$dispatch" npm 24.21.0 -- install >"$tmp/out" 2>&1; then exit 1; fi
 KAIPLUS_CONFIRMED=1 sh "$dispatch" npm 24.21.0 -- install --save-exact is-number@7.0.0
 grep -Fx 'selected=node@24.21.0' "$TEST_CALLS"
 grep -Fx 'npm install --save-exact is-number@7.0.0' "$TEST_CALLS"
+: >"$TEST_CALLS"
+if KAIPLUS_CONFIRMED=1 TEST_BAD_SELECTED_PATH=1 sh "$dispatch" npm 24.21.0 -- install >"$tmp/out" 2>&1; then exit 1; fi
+grep -F 'outside the mise installation' "$tmp/out"
+! grep -Fx 'npm install' "$TEST_CALLS"
+if KAIPLUS_CONFIRMED=1 TEST_NODE_VERSION=22.0.0 sh "$dispatch" npm 24.21.0 -- install >"$tmp/out" 2>&1; then exit 1; fi
+grep -F 'selected Node version mismatch' "$tmp/out"
+! grep -Fx 'npm install' "$TEST_CALLS"
 if KAIPLUS_CONFIRMED=1 sh "$dispatch" pip 3.13.7 -- install idna==3.10 >"$tmp/out" 2>&1; then exit 1; fi
 grep -F venv-not-active "$tmp/out"
 KAIPLUS_CONFIRMED=1 VIRTUAL_ENV="$tmp/venv" sh "$dispatch" pip 3.13.7 -- install --no-cache-dir idna==3.10

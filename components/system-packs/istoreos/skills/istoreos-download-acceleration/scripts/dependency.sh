@@ -15,7 +15,20 @@ if [ "${ISTORE_RUNTIME_ENTERED:-}" != 1 ]; then
   exec sh "$runtime_scripts/exec.sh" "$here/dependency.sh" "$tool" "$version" -- "$@"
 fi
 . "$runtime_scripts/environment.sh"
-runtime_environment_check
+if [ "$selected" = 1 ]; then
+  runtime_environment_check selected
+  sdk="$(mise where "$runtime@$version")"
+  executable="$(command -v "$runtime")"
+  [ "$(CDPATH= cd -- "$(dirname "$executable")" && pwd -P)" = "$(CDPATH= cd -- "$sdk/bin" && pwd -P)" ] || {
+    echo 'failed: selected SDK executable is outside the mise installation' >&2; exit 4;
+  }
+  case "$runtime" in
+    node) [ "$(node --version)" = "v$version" ] || { echo 'failed: selected Node version mismatch' >&2; exit 4; } ;;
+    go) case "$(GOTOOLCHAIN=local go version)" in "go version go$version "*) ;; *) echo 'failed: selected Go version mismatch' >&2; exit 4 ;; esac ;;
+  esac
+else
+  runtime_environment_check
+fi
 export MISE_AUTO_INSTALL=0 MISE_NOT_FOUND_AUTO_INSTALL=0
 if [ "$tool" != pip ] && [ "$selected" = 0 ]; then
   exec mise exec "$runtime@$version" -- sh "$here/dependency.sh" --selected "$tool" "$version" -- "$@"

@@ -48,6 +48,7 @@ case "$*" in
   echo '# get https://dl-golang.linkease.net:5443/github.com/google/uuid/@v/v1.6.0.mod: 200 OK'
   echo '# get https://dl-golang.linkease.net:5443/github.com/google/uuid/@v/v1.6.0.zip: 200 OK'
   if [ -n "${TEST_GATEWAY_LOG:-}" ]; then
+    if [ "${TEST_GATEWAY_REPLACE:-0}" = 1 ]; then echo replacement >"$TEST_GATEWAY_LOG"; fi
     printf '%s\n' 'download gateway done mirror=golang url=https://proxy.golang.org/github.com/google/uuid/@v/v1.6.0.mod bytes=42' 'download gateway done mirror=golang url=https://proxy.golang.org/github.com/google/uuid/@v/v1.6.0.zip bytes=123' >>"$TEST_GATEWAY_LOG"
   fi ;;
 'go mod verify') echo 'all modules verified' ;;
@@ -162,6 +163,18 @@ import json, sys
 r=json.load(open(sys.argv[1])); assert r['operation']=='gateway-evidence' and r['gateway_validation']=='confirmed', r
 PY
 expect_code 4 sh "$download/evidence.sh" --json go "$tmp/confirmed/client.log" "$tmp/confirmed/gateway.log" 5444
+cp "$tmp/confirmed/client.log" "$tmp/direct.log"
+echo '# get https://proxy.golang.org/github.com/google/uuid/@v/v1.6.0.zip' >>"$tmp/direct.log"
+expect_code 4 sh "$download/evidence.sh" --json go "$tmp/direct.log" "$tmp/confirmed/gateway.log" 5443
+python3 - "$tmp/out" <<'PY'
+import json, sys
+r=json.load(open(sys.argv[1])); assert r['gateway_validation']=='client-direct-observed' and r['status']=='failed', r
+PY
+expect_code 4 env KAIPLUS_CONFIRMED=1 TEST_GATEWAY_LOG="$tmp/gateway.log" TEST_GATEWAY_REPLACE=1 sh "$download/smoke.sh" go 1.27.1 "$tmp/replaced-log" "$tmp/gateway.log" 5443
+python3 - "$tmp/replaced-log/result.json" <<'PY'
+import json, sys
+r=json.load(open(sys.argv[1])); assert r['client_validation']=='passed' and r['gateway_validation']=='insufficient-evidence' and r['status']=='failed', r
+PY
 # Do not create a work directory or run commands on a non-iStore target.
 rm "$tmp/system/etc/openwrt_release"
 echo ID=ubuntu >"$tmp/system/etc/os-release"
