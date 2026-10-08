@@ -1,0 +1,97 @@
+#!/bin/sh
+set -eu
+pack="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd -P)"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT HUP INT TERM
+mkdir -p "$tmp/system/etc" "$tmp/system/usr/lib/opkg" "$tmp/bin" "$tmp/runtime home"
+printf '%s\n' 'DISTRIB_ID="iStoreOS"' 'DISTRIB_RELEASE="24.10.1"' >"$tmp/system/etc/openwrt_release"
+: >"$tmp/system/usr/lib/opkg/status"
+export ISTORE_SYSTEM_ROOT="$tmp/system" TEST_CALLS="$tmp/calls" TEST_RUNTIME="$tmp/runtime home"
+cat >"$tmp/bin/opkg" <<'EOF'
+#!/bin/sh
+printf '%s\n' "opkg $*" >>"$TEST_CALLS"
+case "$1" in
+list) printf '%s\n' 'mise - 2026.8.14 - integrated runtime manager' ;;
+info) printf '%s\n' 'Package: mise' 'Version: 2026.8.14' ;;
+status) printf '%s\n' 'Package: mise' 'Status: install ok installed' ;;
+files) printf '%s\n' '/usr/sbin/mise-exec' '/lib/functions/mise.sh' ;;
+esac
+EOF
+cat >"$tmp/bin/is-opkg" <<'EOF'
+#!/bin/sh
+printf '%s\n' "is-opkg $*" >>"$TEST_CALLS"
+EOF
+cat >"$tmp/bin/apk" <<'EOF'
+#!/bin/sh
+printf '%s\n' "apk $*" >>"$TEST_CALLS"
+case "$1" in
+search) echo 'mise-2026.8.14 integrated runtime manager' ;;
+info) echo 'mise-2026.8.14 description:' ;;
+esac
+EOF
+cat >"$tmp/bin/uci" <<'EOF'
+#!/bin/sh
+printf '%s\n' "$TEST_RUNTIME"
+EOF
+cat >"$tmp/bin/mise-exec" <<'EOF'
+#!/bin/sh
+# Match the system shell-only contract, deliberately ignore argv.
+export HOME="$TEST_RUNTIME"
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+export MISE_NODE_MIRROR_URL=https://legacy.invalid MISE_NODE_VERIFY=0
+exec /bin/sh
+EOF
+chmod +x "$tmp/bin/"*
+export PATH="$tmp/bin:$PATH"
+pkg="$pack/skills/istoreos-package-manager/scripts/package.sh"
+runner="$pack/skills/istoreos-mise-runtime/scripts/exec.sh"
+sh "$pkg" detect >"$tmp/facts"
+grep -Fx 'package_manager=opkg' "$tmp/facts"
+grep -Fx 'package_installer=is-opkg' "$tmp/facts"
+sh "$pkg" search mise >"$tmp/search"
+grep -F 'mise - 2026.8.14' "$tmp/search"
+! grep -F update "$TEST_CALLS"
+if sh "$pkg" install mise >/dev/null 2>&1; then echo 'unguarded package install' >&2; exit 1; fi
+! grep -F install "$TEST_CALLS"
+KAIPLUS_CONFIRMED=1 sh "$pkg" install mise
+grep -Fx 'is-opkg install mise' "$TEST_CALLS"
+# APK executable alone does not override the active opkg database.
+rm "$tmp/system/usr/lib/opkg/status"
+mkdir -p "$tmp/system/lib/apk/db"
+: >"$tmp/system/lib/apk/db/installed"
+sh "$pkg" detect >"$tmp/facts"
+grep -Fx 'package_manager=apk' "$tmp/facts"
+sh "$pkg" search mise >"$tmp/search"
+KAIPLUS_CONFIRMED=1 sh "$pkg" install mise
+grep -Fx 'apk add mise' "$TEST_CALLS"
+: >"$tmp/system/usr/lib/opkg/status"
+if sh "$pkg" detect >"$tmp/out" 2>&1; then echo 'ambiguous databases accepted' >&2; exit 1; fi
+grep -F ambiguous "$tmp/out"
+rm "$tmp/system/usr/lib/opkg/status"
+# Exact installed package and missing feed candidate must not install.
+if KAIPLUS_CONFIRMED=1 sh "$pkg" install 'mise;false' >"$tmp/out" 2>&1; then exit 1; fi
+cat >"$tmp/program.sh" <<'EOF'
+set -eu
+[ "$HOME" = "$TEST_RUNTIME" ]
+case "$PATH" in "$HOME/.local/share/mise/shims:"*) ;; *) exit 8 ;; esac
+# Runtime dir is HOME, not necessarily cwd. Workdir is an explicit argument.
+[ "$PWD" = "$1" ]
+[ "$2" = 'argument with spaces' ]
+printf '%s\n' "environment_ok=$HOME"
+EOF
+sh "$runner" "$tmp/program.sh" "$PWD" 'argument with spaces' >"$tmp/run1"
+sh "$runner" "$tmp/program.sh" "$PWD" 'argument with spaces' >"$tmp/run2"
+cmp "$tmp/run1" "$tmp/run2"
+printf '%s\n' 'exit 17' >"$tmp/fail.sh"
+code=0
+sh "$runner" "$tmp/fail.sh" || code=$?
+[ "$code" = 17 ]
+printf '%s\n' 'ID=ubuntu' >"$tmp/system/etc/os-release"
+rm "$tmp/system/etc/openwrt_release"
+: >"$TEST_CALLS"
+if sh "$pkg" search mise >"$tmp/out" 2>&1; then exit 1; fi
+grep -F 'unsupported-system' "$tmp/out"
+[ ! -s "$TEST_CALLS" ]
+if sh "$runner" "$tmp/program.sh" "$PWD" x >"$tmp/out" 2>&1; then exit 1; fi
+grep -F 'unsupported-system' "$tmp/out"
+echo 'ok: package detection and persistent runtime execution contracts passed'
