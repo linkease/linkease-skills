@@ -100,7 +100,14 @@ sh "$runner" "$tmp/program.sh" "$PWD" 'argument with spaces' 'literal '\''quote 
 cmp "$tmp/run1" "$tmp/run2"
 mkdir -p "$tmp/system/lib"
 : >"$tmp/system/lib/ld-musl-x86_64.so.1"
+# Minimal router images may omit printenv; diagnostics must still report facts.
+cat >"$tmp/bin/printenv" <<'EOF'
+#!/bin/sh
+exit 127
+EOF
+chmod +x "$tmp/bin/printenv"
 sh "$pack/skills/istoreos-mise-runtime/scripts/check.sh" python >"$tmp/check"
+grep -Fx "XDG_DATA_HOME=$XDG_DATA_HOME" "$tmp/check"
 grep -Fx 'libc=musl' "$tmp/check"
 grep -Fx 'environment=enter-mise-exec' "$tmp/check"
 if grep -F update "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
