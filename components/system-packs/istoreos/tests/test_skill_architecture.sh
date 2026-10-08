@@ -134,6 +134,9 @@ catalog_bytes="$(wc -c <"$catalog" | tr -d ' ')"
   exit 1
 }
 
+if grep -E '不要建议.*`apk`' "$root/agents/system.md" "$root/agents/istoreos.md" >/dev/null; then
+  fail 'resident Agent instructions prohibit the supported apk package branch'
+fi
 prompt_bytes="$(( $(wc -c <"$root/agents/system.md") + $(wc -c <"$root/agents/istoreos.md") ))"
 [ "$prompt_bytes" -le 2048 ] || {
   echo "failed: always-on iStoreOS agent prompts exceed 2 KiB (actual=$prompt_bytes)" >&2
