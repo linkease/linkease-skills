@@ -33,7 +33,10 @@ echo true
 EOF
 cat >"$tmp/bin/go" <<'EOF'
 #!/bin/sh
-echo "${TEST_SUMDB:-sum.golang.org}"
+case "$*" in
+  'env GOSUMDB') echo "${TEST_SUMDB:-sum.golang.org}" ;;
+  'env GOINSECURE') echo "${TEST_GO_INSECURE:-}" ;;
+esac
 EOF
 cat >"$tmp/venv/bin/activate" <<'EOF'
 export PATH="$VIRTUAL_ENV/bin:$PATH"
@@ -58,5 +61,7 @@ KAIPLUS_CONFIRMED=1 TEST_DOCTOR_FAILURE=7 sh "$dispatch" go 1.27.1 -- mod downlo
 [ "$code" = 7 ]
 ! grep -Fx 'go mod download -x' "$TEST_CALLS"
 if KAIPLUS_CONFIRMED=1 TEST_SUMDB=off sh "$dispatch" go 1.27.1 -- mod download >"$tmp/out" 2>&1; then exit 1; fi
+grep -F integrity-disabled "$tmp/out"
+if KAIPLUS_CONFIRMED=1 TEST_GO_INSECURE='*' sh "$dispatch" go 1.27.1 -- mod download >"$tmp/out" 2>&1; then exit 1; fi
 grep -F integrity-disabled "$tmp/out"
 echo 'ok: dependency routing, venv, runtime selection and health gates passed'
