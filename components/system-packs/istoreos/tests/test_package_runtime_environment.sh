@@ -46,7 +46,8 @@ export MISE_NODE_MIRROR_URL=https://legacy.invalid MISE_NODE_VERIFY=0
 exec /bin/sh
 EOF
 chmod +x "$tmp/bin/"*
-export PATH="$tmp/bin:$PATH"
+export PATH="$tmp/bin:$PATH" XDG_DATA_HOME="$tmp/agent-data" XDG_CONFIG_HOME="$tmp/agent-config" XDG_CACHE_HOME="$tmp/agent-cache"
+unset MISE_DATA_DIR MISE_CONFIG_DIR MISE_CACHE_DIR
 pkg="$pack/skills/istoreos-package-manager/scripts/package.sh"
 runner="$pack/skills/istoreos-mise-runtime/scripts/exec.sh"
 sh "$pkg" detect >"$tmp/facts"
@@ -83,6 +84,10 @@ if KAIPLUS_CONFIRMED=1 sh "$pkg" install 'mise;false' >"$tmp/out" 2>&1; then exi
 cat >"$tmp/program.sh" <<'EOF'
 set -eu
 [ "$HOME" = "$TEST_RUNTIME" ]
+[ "${MISE_DATA_DIR:-}" = "$HOME/.local/share/mise" ]
+[ "${MISE_CACHE_DIR:-}" = "$HOME/.cache/mise" ]
+[ "${MISE_CONFIG_DIR:-}" = "$HOME/.config/mise" ]
+[ "$XDG_DATA_HOME" != "$HOME/.local/share" ]
 case "$PATH" in "$HOME/.local/share/mise/shims:"*) ;; *) exit 8 ;; esac
 # Runtime dir is HOME, not necessarily cwd. Workdir is an explicit argument.
 [ "$PWD" = "$1" ]
