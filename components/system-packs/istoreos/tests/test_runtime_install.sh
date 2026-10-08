@@ -39,7 +39,9 @@ case "$*" in
 'mise settings get node.mirror_url') exit 1 ;;
 'mise settings get node.verify') echo true ;;
 'mise settings get node.gpg_verify') echo true ;;
-'mise settings get skip_checksum') echo "${TEST_SKIP_CHECKSUM:-false}" ;;
+'mise settings get skip_checksum') echo 'mise ERROR Unknown setting: skip_checksum' >&2; exit 1 ;;
+'mise settings get go.skip_checksum') echo "${TEST_SKIP_CHECKSUM:-false}" ;;
+'mise settings get gpg_verify') if [ "${TEST_GPG_DISABLED:-0}" = 1 ]; then echo false; else exit 1; fi ;;
 'mise settings get not_found_auto_install') echo true ;;
 'mise exec go@1.27.1 -- go env GOROOT') echo "$TEST_INSTALL" ;;
 'mise exec go@1.27.1 -- go version') echo "go version go${TEST_GO_VERSION:-1.27.1} linux/amd64" ;;
@@ -79,7 +81,10 @@ KAIPLUS_CONFIRMED=1 TEST_INSTALL_FAILURE=1 sh "$install" python 3.13.7 >"$tmp/ou
 [ "$code" = 9 ]
 grep -F precompiled-unavailable "$tmp/out"
 : >"$TEST_CALLS"
-if KAIPLUS_CONFIRMED=1 TEST_SKIP_CHECKSUM=true sh "$install" node 24.21.0 >"$tmp/out" 2>&1; then exit 1; fi
+if KAIPLUS_CONFIRMED=1 TEST_SKIP_CHECKSUM=true sh "$install" go 1.27.1 >"$tmp/out" 2>&1; then exit 1; fi
+grep -F integrity-disabled "$tmp/out"
+! grep -F 'mise install' "$TEST_CALLS"
+if KAIPLUS_CONFIRMED=1 TEST_GPG_DISABLED=1 sh "$install" python 3.13.7 >"$tmp/out" 2>&1; then exit 1; fi
 grep -F integrity-disabled "$tmp/out"
 ! grep -F 'mise install' "$TEST_CALLS"
 if TEST_WRONG_SOURCE=1 sh "$pack/skills/istoreos-mise-runtime/scripts/verify.sh" python 3.13.7 >"$tmp/out" 2>&1; then echo 'system interpreter accepted as mise installation' >&2; exit 1; fi
