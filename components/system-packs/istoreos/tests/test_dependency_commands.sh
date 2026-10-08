@@ -20,6 +20,11 @@ cat >"$tmp/bin/mise" <<'EOF'
 [ "$1" = exec ] && [ "$3" = -- ] || exit 2
 printf '%s\n' "selected=$2" >>"$TEST_CALLS"
 shift 3
+if [ "${TEST_MISSING_RUNTIME:-0}" = 1 ]; then
+  if [ "${MISE_AUTO_INSTALL:-1}" != 0 ]; then echo automatic-runtime-install-attempt >>"$TEST_CALLS"; fi
+  echo 'runtime is not installed' >&2
+  exit 4
+fi
 exec "$@"
 EOF
 cat >"$tmp/bin/ks-cli" <<'EOF'
@@ -64,4 +69,9 @@ if KAIPLUS_CONFIRMED=1 TEST_SUMDB=off sh "$dispatch" go 1.27.1 -- mod download >
 grep -F integrity-disabled "$tmp/out"
 if KAIPLUS_CONFIRMED=1 TEST_GO_INSECURE='*' sh "$dispatch" go 1.27.1 -- mod download >"$tmp/out" 2>&1; then exit 1; fi
 grep -F integrity-disabled "$tmp/out"
+code=0
+: >"$TEST_CALLS"
+KAIPLUS_CONFIRMED=1 TEST_MISSING_RUNTIME=1 sh "$dispatch" npm 24.21.0 -- install >"$tmp/out" 2>&1 || code=$?
+[ "$code" = 4 ]
+! grep -F automatic-runtime-install-attempt "$TEST_CALLS"
 echo 'ok: dependency routing, venv, runtime selection and health gates passed'
