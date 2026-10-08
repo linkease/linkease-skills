@@ -37,7 +37,7 @@ const lock = require("./package-lock.json")
 if (!lock.packages["node_modules/is-number"].integrity) process.exit(1)
 ```
 
-Require actual metadata /is-number and artifact /is-number/-/is-number-7.0.0.tgz requests to dl-npm, plus matching gateway completions and lock integrity. npm can normalize standard-registry tarballs to its configured registry, but a lockfile/custom CDN/Git dependency can remain direct. Inspect actual logs; do not promise blanket coverage. Node installation and this npm recipe still require applicable device validation.
+Require actual metadata /is-number and artifact /is-number/-/is-number-7.0.0.tgz requests to dl-npm, plus matching gateway completions and lock integrity. npm can normalize standard-registry tarballs to its configured registry, but a lockfile/custom CDN/Git dependency can remain direct. Inspect actual logs; do not promise blanket coverage. Keep Node installation and npm dependency validation as separate results; an existing Node SDK cannot establish a successful new installation.
 
 ### Go modules
 
@@ -49,15 +49,15 @@ ks-cli go mod verify
 ks-cli go run .
 ```
 
-Download the explicit module so Go writes its package checksum to go.sum even with a pruned module graph; verify alone does not populate that entry. Require module .mod/.info and .zip requests under `/github.com/google/uuid/@v/`, go.sum verification and the actual program output. Keep GOSUMDB enabled; private-module skip patterns and GOINSECURE need separate review. This demo clears private-module bypass patterns only in its process. Go SDK tarball download is a different route. GOTOOLCHAIN=local prevents a dependency test silently downloading another SDK.
+Download the explicit module so Go writes its package checksum to go.sum even with a pruned module graph; verify alone does not populate that entry. Require module .mod/.info and .zip requests under `/github.com/google/uuid/@v/`, go.sum verification and the actual program output. Keep GOSUMDB enabled; private-module skip patterns and GOINSECURE need separate review. This demo clears private-module bypass patterns only in its process. For a fresh initialized project with this importing program, `ks-cli go get -x github.com/google/uuid@v1.6.0` is also supported: require the resulting go.mod requirement/go.sum, then run the same verify and program checks. Go SDK tarball download is a different route. GOTOOLCHAIN=local prevents a dependency test silently downloading another SDK.
 
 ## Gateway evidence and acceptance
 
 Start/end a bounded log capture for the actual installed instance during a fresh test. Read its actual procd/service log configuration; don't assume stdout lands in logread. Keep other test traffic out of the captured window. Capture client logs, installed port/explain plan, loopback DNS/TLS evidence, exact package/version and runtime validation results. Never supply old session logs as current-run evidence.
 
-Run `evidence.sh TOOL CLIENT_LOG GATEWAY_LOG ACTUAL_TLS_PORT` for these pinned smoke recipes. It correlates exact metadata/artifact paths, the actual client port, gateway GET plus successful done/positive bytes, and successful PyPI index records. It refuses cache-only, unrelated artifacts, wrong-port, incomplete and observed client-direct traffic. It proves the matched route evidence only: also require the recipe's successful install/check/run result and current-instance/DNS provenance before final acceptance.
+Run `evidence.sh TOOL CLIENT_LOG GATEWAY_LOG ACTUAL_TLS_PORT` for these pinned smoke recipes. It correlates exact metadata/artifact paths, the actual client port, successful gateway done/positive bytes (including direct_race completion without a separate GET), and successful PyPI index records. It refuses cache-only, unrelated artifacts, wrong-port, incomplete and observed client-direct traffic. It proves the matched route evidence only: also require the recipe's successful install/check/run result and current-instance/DNS provenance before final acceptance.
 
-New gateway versions emit `download gateway pypi-index host=... path=/simple/idna/ http_status=200 status=ok bytes=...`. Wheel/metadata artifacts use pypi-files GET/done logs. Older versions without that index event require independently matching current-instance access logs/manual inspection; the checker deliberately returns insufficient evidence, not a fabricated pass. A plugin upgrade is a separate authorized package operation, not automatically required to diagnose.
+New gateway versions emit `download gateway pypi-index host=... path=/simple/idna/ http_status=200 status=ok bytes=...`. Wheel/metadata artifacts use pypi-files completion logs, with optional GET events. Older versions without that index event require independently matching current-instance access logs/manual inspection; the checker deliberately returns insufficient evidence, not a fabricated pass. A plugin upgrade is a separate authorized package operation, not automatically required to diagnose.
 
 Distinguish:
 
@@ -76,6 +76,7 @@ Gateway `selected=origin`, `npmjs`, `google`, pythonhosted or another direct can
 | Connection refused / remote-only route 403 | Check service, configured port and loopback DNS; remote Agent commands must run on the target |
 | TLS/checksum/signature/sumdb failure | Check clock, certificate, expected integrity and source logs; preserve checks |
 | pip 127 realpath / inactive venv | Inspect actual launcher, activate project's venv in the same shell and retry ks-cli pip |
+| pip wheel metadata 404 while canonical source returns 200 | Correlate cached mirror failure with same-request completion; older gateways could commit the mirror error before a successful retry. Preserve client status/body and gateway build identity, then use an authorized fixed gateway build; do not skip metadata/TLS/hashes or label a manual retry as a fix |
 | npm tarball/Git source outside registry | Inspect lockfile and actual request; use a supported separate lane or report direct coverage |
 | Go successful only after direct fallback | Report direct success separately; diagnose proxy status/routing without relabeling it as gateway success |
 

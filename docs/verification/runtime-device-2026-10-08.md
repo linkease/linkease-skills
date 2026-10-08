@@ -1,5 +1,7 @@
 # Authorized iStoreOS device verification
 
+A subsequent investigation fixed and retested the pip failure; current results are in [runtime-device-followup-2026-10-08.md](runtime-device-followup-2026-10-08.md). This report retains the earlier results.
+
 Date: 2026-10-08. Follow-up to the local M1–M5 report. The user supplied one device and authorized replacing Kai skills, mise integration, ks-cli and iStoreEnhance, and running real Agent and dependency tests. No publication, push or upstream merge occurred.
 
 ## Scope and deployment
