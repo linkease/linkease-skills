@@ -3,7 +3,7 @@ set -eu
 pack="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd -P)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT HUP INT TERM
-mkdir -p "$tmp/bin" "$tmp/system/etc" "$tmp/runtime home" "$tmp/sdk"
+mkdir -p "$tmp/bin" "$tmp/system/etc" "$tmp/runtime home" "$tmp/sdk/bin"
 echo 'DISTRIB_ID=iStoreOS' >"$tmp/system/etc/openwrt_release"
 export ISTORE_SYSTEM_ROOT="$tmp/system" TEST_RUNTIME="$tmp/runtime home" TEST_SDK="$tmp/sdk" TEST_CALLS="$tmp/calls"
 cat >"$tmp/bin/uci" <<'EOF'
@@ -24,7 +24,11 @@ echo "mise $*" >>"$TEST_CALLS"
 case "$1" in
 where) [ "${TEST_MISSING_SDK:-0}" != 1 ] || exit 8; echo "$TEST_SDK" ;;
 --version) echo 'mise 2026.8.14' ;;
-exec) [ "$3" = -- ] || exit 2; shift 3; exec "$@" ;;
+exec)
+  [ "$3" = -- ] || exit 2; shift 3
+  if [ "${TEST_DROP_SHIMS:-0}" = 1 ]; then PATH="$TEST_SELECTED_PATH"; fi
+  export PATH="$TEST_SDK/bin:$PATH"
+  exec "$@" ;;
 *) exit 2 ;;
 esac
 EOF
@@ -56,11 +60,14 @@ cat >"$tmp/bin/go" <<'EOF'
 case "$*" in
 'env GOSUMDB') echo sum.golang.org ;;
 'env GOINSECURE') echo ;;
+'version') echo 'go version go1.27.1 linux/amd64' ;;
 *) exit 2 ;;
 esac
 EOF
 chmod +x "$tmp/bin/"*
+cp "$tmp/bin/go" "$TEST_SDK/bin/go"
 export PATH="$tmp/bin:$PATH" XDG_DATA_HOME="$tmp/agent-data" XDG_CACHE_HOME="$tmp/agent-cache" XDG_CONFIG_HOME="$tmp/agent-config"
+export TEST_SELECTED_PATH="$PATH"
 unset ISTORE_RUNTIME_ENTERED MISE_DATA_DIR MISE_CACHE_DIR MISE_CONFIG_DIR
 runtime="$pack/skills/istoreos-mise-runtime/scripts"
 download="$pack/skills/istoreos-download-acceleration/scripts"
@@ -127,6 +134,7 @@ import json, sys
 r=json.load(open(sys.argv[1])); assert r['status']=='failed' and r['exitCode']==9 and r['runtime_validation']!='passed', r
 PY
 # Client success alone is partial. Old gateway entries cannot fill missing evidence.
+expect_code 0 env KAIPLUS_CONFIRMED=1 TEST_DROP_SHIMS=1 sh "$download/smoke.sh" go 1.27.1 "$tmp/selected-without-shims"
 KAIPLUS_CONFIRMED=1 sh "$download/smoke.sh" go 1.27.1 "$tmp/client-only" >"$tmp/out" 2>"$tmp/err"
 python3 - "$tmp/client-only/result.json" <<'PY'
 import json, sys
