@@ -1,5 +1,7 @@
 # Latest fixes: device deployment and verification
 
+Follow-up: the user approved scoped task entrypoints and receipt-based acceptance instead of a Kai executor constraint. See [the subsequent implementation and device verification](scoped-runtime-entrypoints-2026-10-08.md); the observations below remain historical for this earlier run.
+
 This is a new test run, not a reuse of earlier device evidence. The authorized target is iStoreOS 24.10.1, x86_64/musl, with opkg/is-opkg, integrated mise 2026.8.14 and Kai's OpenCode CLI 1.18.32. Device addresses, credentials and machine-specific paths remain in private execution artifacts.
 
 ## Deployment
