@@ -30,7 +30,7 @@ valid_package() {
 available() {
   if [ "$manager" = opkg ]; then
     candidates="$(opkg list "$subject")" || fail 'feed query failed; inspect sources and explicitly refresh if authorized'
-    printf '%s\n' "$candidates" | grep -F "$subject - " >/dev/null || fail "package-unavailable: $subject is not in the cached configured feeds"
+    printf '%s\n' "$candidates" | awk -v package="$subject" '$1 == package && $2 == "-" { found=1 } END { exit !found }' || fail "package-unavailable: $subject is not in the cached configured feeds"
   else
     candidates="$(apk search -x "$subject")" || fail 'feed query failed; inspect repositories and explicitly refresh if authorized'
     case "$candidates" in "$subject"-[0-9]*|"$subject") ;; *) fail "package-unavailable: $subject is not in the cached configured feeds" ;; esac
@@ -61,7 +61,11 @@ case "$action" in
       available:*) available; printf '%s\n' "$candidates" ;;
       info:opkg) opkg info "$subject" ;;
       info:apk) apk info -a "$subject" ;;
-      installed:opkg) opkg status "$subject" ;;
+      installed:opkg)
+        state="$(opkg status "$subject")" || fail "package-not-installed: $subject"
+        printf '%s\n' "$state" | grep -Eq '^Status:.*[[:space:]]installed$' || fail "package-not-installed: $subject"
+        printf '%s\n' "$state"
+        ;;
       installed:apk) apk info -e "$subject" ;;
       files:opkg) opkg files "$subject" ;;
       files:apk) apk info -L "$subject" ;;
