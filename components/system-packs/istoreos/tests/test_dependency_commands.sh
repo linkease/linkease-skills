@@ -64,7 +64,7 @@ grep -Fx 'pip install --no-cache-dir idna==3.10' "$TEST_CALLS"
 code=0
 KAIPLUS_CONFIRMED=1 TEST_DOCTOR_FAILURE=7 sh "$dispatch" go 1.27.1 -- mod download -x >"$tmp/out" 2>&1 || code=$?
 [ "$code" = 7 ]
-! grep -Fx 'go mod download -x' "$TEST_CALLS"
+if grep -Fx 'go mod download -x' "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 if KAIPLUS_CONFIRMED=1 TEST_SUMDB=off sh "$dispatch" go 1.27.1 -- mod download >"$tmp/out" 2>&1; then exit 1; fi
 grep -F integrity-disabled "$tmp/out"
 if KAIPLUS_CONFIRMED=1 TEST_GO_INSECURE='*' sh "$dispatch" go 1.27.1 -- mod download >"$tmp/out" 2>&1; then exit 1; fi
@@ -73,5 +73,5 @@ code=0
 : >"$TEST_CALLS"
 KAIPLUS_CONFIRMED=1 TEST_MISSING_RUNTIME=1 sh "$dispatch" npm 24.21.0 -- install >"$tmp/out" 2>&1 || code=$?
 [ "$code" = 4 ]
-! grep -F automatic-runtime-install-attempt "$TEST_CALLS"
+if grep -F automatic-runtime-install-attempt "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 echo 'ok: dependency routing, venv, runtime selection and health gates passed'

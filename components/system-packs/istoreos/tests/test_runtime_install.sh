@@ -64,14 +64,14 @@ if sh "$install" python 3.13.7 >"$tmp/out" 2>&1; then exit 1; fi
 KAIPLUS_CONFIRMED=1 sh "$install" python 3.13.7
 grep -F 'mise install python@3.13.7|compile=0|os=unknown-linux-musl|arch=x86_64' "$TEST_CALLS"
 grep -F 'mise exec python@3.13.7 -- python' "$TEST_CALLS"
-! grep -F 'use --global' "$TEST_CALLS"
+if grep -F 'use --global' "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 : >"$TEST_CALLS"
 if KAIPLUS_CONFIRMED=1 sh "$install" python latest >"$tmp/out" 2>&1; then exit 1; fi
 grep -F explicit-python-version "$tmp/out"
 [ ! -s "$TEST_CALLS" ]
 KAIPLUS_CONFIRMED=1 sh "$install" nodejs lts
 grep -F 'mise install node@24.21.0' "$TEST_CALLS"
-! grep 'mise install node@.*verify=0' "$TEST_CALLS"
+if grep 'mise install node@.*verify=0' "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 grep -F 'mise install node@24.21.0|compile=unset|os=unset|arch=unset|verify=1|mirror=unset' "$TEST_CALLS"
 KAIPLUS_CONFIRMED=1 sh "$install" go 1.27 global
 grep -F 'mise use --global go@1.27.1' "$TEST_CALLS"
@@ -83,10 +83,10 @@ grep -F precompiled-unavailable "$tmp/out"
 : >"$TEST_CALLS"
 if KAIPLUS_CONFIRMED=1 TEST_SKIP_CHECKSUM=true sh "$install" go 1.27.1 >"$tmp/out" 2>&1; then exit 1; fi
 grep -F integrity-disabled "$tmp/out"
-! grep -F 'mise install' "$TEST_CALLS"
+if grep -F 'mise install' "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 if KAIPLUS_CONFIRMED=1 TEST_GPG_DISABLED=1 sh "$install" python 3.13.7 >"$tmp/out" 2>&1; then exit 1; fi
 grep -F integrity-disabled "$tmp/out"
-! grep -F 'mise install' "$TEST_CALLS"
+if grep -F 'mise install' "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 if TEST_WRONG_SOURCE=1 sh "$pack/skills/istoreos-mise-runtime/scripts/verify.sh" python 3.13.7 >"$tmp/out" 2>&1; then echo 'system interpreter accepted as mise installation' >&2; exit 1; fi
 grep -F AssertionError "$tmp/out"
 if KAIPLUS_CONFIRMED=1 TEST_GO_VERSION=1.26.0 sh "$install" go 1.27.1 >"$tmp/out" 2>&1; then exit 1; fi
@@ -96,7 +96,7 @@ grep -F 'os=unknown-linux-musl|arch=aarch64' "$TEST_CALLS"
 : >"$TEST_CALLS"
 if KAIPLUS_CONFIRMED=1 TEST_ARCH=mips sh "$install" python 3.13.7 >"$tmp/out" 2>&1; then exit 1; fi
 grep -F unsupported-architecture "$tmp/out"
-! grep -F 'mise install' "$TEST_CALLS"
+if grep -F 'mise install' "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 rm "$tmp/system/lib/ld-musl-x86_64.so.1"
 : >"$TEST_CALLS"
 KAIPLUS_CONFIRMED=1 TEST_LIBC=glibc sh "$install" python 3.13.7 >"$tmp/out"
@@ -106,5 +106,5 @@ grep -Fx 'libc=glibc' "$tmp/facts"
 : >"$TEST_CALLS"
 if KAIPLUS_CONFIRMED=1 TEST_LIBC=unknown sh "$install" python 3.13.7 >"$tmp/out" 2>&1; then exit 1; fi
 grep -F unknown-libc "$tmp/out"
-! grep -F 'mise install' "$TEST_CALLS"
+if grep -F 'mise install' "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 echo 'ok: runtime version, platform, integrity and activation contracts passed'

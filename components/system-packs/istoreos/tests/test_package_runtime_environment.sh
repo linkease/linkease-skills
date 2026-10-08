@@ -54,9 +54,9 @@ grep -Fx 'package_manager=opkg' "$tmp/facts"
 grep -Fx 'package_installer=is-opkg' "$tmp/facts"
 sh "$pkg" search mise >"$tmp/search"
 grep -F 'mise - 2026.8.14' "$tmp/search"
-! grep -F update "$TEST_CALLS"
+if grep -F update "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 if sh "$pkg" install mise >/dev/null 2>&1; then echo 'unguarded package install' >&2; exit 1; fi
-! grep -F install "$TEST_CALLS"
+if grep -F install "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 KAIPLUS_CONFIRMED=1 sh "$pkg" install mise
 grep -Fx 'is-opkg install mise' "$TEST_CALLS"
 if TEST_PACKAGE_NAME=notmise sh "$pkg" available mise >"$tmp/out" 2>&1; then exit 1; fi
@@ -98,7 +98,7 @@ mkdir -p "$tmp/system/lib"
 sh "$pack/skills/istoreos-mise-runtime/scripts/check.sh" python >"$tmp/check"
 grep -Fx 'libc=musl' "$tmp/check"
 grep -Fx 'environment=enter-mise-exec' "$tmp/check"
-! grep -F update "$TEST_CALLS"
+if grep -F update "$TEST_CALLS"; then echo "failed: unexpected matching command/evidence" >&2; exit 1; fi
 printf '%s\n' 'exit 17' >"$tmp/fail.sh"
 code=0
 sh "$runner" "$tmp/fail.sh" || code=$?
