@@ -22,7 +22,10 @@ quote() { printf "'"; printf '%s' "$1" | sed "s/'/'\\\\''/g"; printf "'"; }
 {
   printf 'set --'
   for arg in "$@"; do printf ' '; quote "$arg"; done
-  printf '\nexport ISTORE_RUNTIME_ENTERED=1\nexec sh '
+  printf '\nexport ISTORE_RUNTIME_ENTERED=1\n'
+  # Scope mise defaults inside the integrated shell, preserving Agent XDG state.
+  printf '%s\n' ': "${MISE_DATA_DIR:=$HOME/.local/share/mise}"' ': "${MISE_CACHE_DIR:=$HOME/.cache/mise}"' ': "${MISE_CONFIG_DIR:=$HOME/.config/mise}"' 'export MISE_DATA_DIR MISE_CACHE_DIR MISE_CONFIG_DIR'
+  printf 'exec sh '
   quote "$program"
   printf ' "$@"\n'
 } >"$payload"
