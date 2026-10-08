@@ -30,15 +30,13 @@ ensure() {
   sh "$script" "$svc" "$cfg"
 }
 
-if ! have opkg; then
-  need "opkg not found; cannot inspect installed files for $pkg"
-fi
-
-files="$(opkg files "$pkg" 2>/dev/null || true)"
+here="$(CDPATH= cd -- "$(dirname "$0")" && pwd -P)"
+files="$(sh "$here/package.sh" files "$pkg")"
 if [ -z "$files" ]; then
   need "cannot list files for $pkg; confirm package name or whether it is installed"
 fi
 
+files="$(printf '%s\n' "$files" | sed 's#^etc/#/etc/#')"
 svcs="$(printf '%s\n' "$files" | sed -n 's#^/etc/init.d/##p' | awk 'NF{print $1}' | sort -u)"
 
 if [ -z "$svcs" ]; then
@@ -50,11 +48,10 @@ printf '%s\n' "$svcs" | while IFS= read -r svc; do
   [ -n "$svc" ] || continue
   cfg="$svc"
   if printf '%s\n' "$files" | grep -q "^/etc/config/$cfg$" 2>/dev/null; then
-    ensure "$svc" "$cfg" || true
+    ensure "$svc" "$cfg"
   else
-    ensure "$svc" || true
+    ensure "$svc"
   fi
 done
 
 echo "ok: ensured services from pkg=$pkg" >&2
-

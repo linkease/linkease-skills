@@ -58,6 +58,12 @@ done
 
 sh "$root/tests/test_download_acceleration_dispatch.sh"
 sh "$root/tests/test_system_helpers.sh"
+sh "$root/tests/test_package_runtime_environment.sh"
+sh "$root/tests/test_runtime_install.sh"
+sh "$root/tests/test_runtime_diagnosis.sh"
+sh "$root/tests/test_dependency_commands.sh"
+sh "$root/tests/test_dependency_gateway_evidence.sh"
+sh "$root/tests/test_dependency_smoke_contract.sh"
 sh "$root/tests/test_network_quality_helpers.sh"
 sh "$root/tests/test_skill_architecture.sh"
 sh "$root/tests/test_app_diagnostics_contract.sh"

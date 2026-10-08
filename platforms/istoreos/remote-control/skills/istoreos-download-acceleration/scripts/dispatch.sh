@@ -7,6 +7,7 @@ usage:
   dispatch.sh url [-o FILE|-O [FILE]] <URL>
   dispatch.sh git-clone <REPOSITORY_URL> [DIRECTORY]
   dispatch.sh docker-pull <IMAGE>
+  dispatch.sh pip|npm|go <RESOLVED_RUNTIME_VERSION> -- <TOOL_ARGS...>
 
 Environment:
   KAIPLUS_HOME or KAIPLUS_SKILLS_DIR locates the installed skills directory.
@@ -116,6 +117,9 @@ dispatch_git_clone() {
 }
 
 case "$mode" in
+  pip|npm|go)
+    exec sh "$root/istoreos-download-acceleration/scripts/dependency.sh" "$mode" "$@"
+    ;;
   url)
     dispatch_url_download "$@"
     ;;

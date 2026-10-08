@@ -1,9 +1,9 @@
 ---
 name: istoreos-download-acceleration
-description: iStoreOS 下载加速总入口；区分 Docker 镜像、外部文件/包制品和公开 HTTPS Git 仓库三条链路，不用于宽带测速或普通网络质量诊断。
+description: iStoreOS 下载与依赖加速入口；分流文件、Git、Docker 和 pip/npm/Go modules，验证实际网关请求并诊断失败。
 owner: system-pack/istoreos
 systems: istoreos
-triggers: 下载慢, 拉取失败, 拉镜像失败, 镜像下载慢, docker pull, GitHub 下载, GitLab 下载, HuggingFace, git clone, 镜像加速, 文件下载失败
+triggers: 下载慢, 拉取失败, 拉镜像失败, 镜像下载慢, docker pull, GitHub 下载, GitLab 下载, HuggingFace, git clone, 镜像加速, 文件下载失败, pip install, pip 安装, Python 依赖, npm install, npm ci, npm 依赖, Go modules, go mod, 模块下载
 negative-triggers: 网速慢, 网络测速, 宽带速度, 延迟测试, 局域网测速
 auto-use: prefer
 routing-group: istoreos-primary
@@ -13,49 +13,30 @@ cost: medium
 
 # iStoreOS Download Acceleration
 
-Use this skill when the user says Docker image pulls are slow/failing, asks to pull a Docker image, installs a Docker-style app, downloads files from GitHub/GitLab/HuggingFace/package registries, or wants to accelerate cloning a public HTTPS Git repository.
+Select one download lane for the user's task; do not ask users to assemble skills. This is the iStoreOS/OpenWrt integration workflow. Ubuntu and other systems retain their own package/service/runtime policies. ks-cli is a client of the resident KSpeeder service on iStoreOS, not a competing service installer.
 
-## User-Level Policy
+## Dispatch
 
-Do not ask the user to choose a skill. Treat "下载慢", "拉镜像失败", "GitHub 下载失败", "git clone 太慢", "帮我下载这个链接", and "帮我安装 Docker 应用" as one product capability: download acceleration.
+1. Python/Node/Go SDK installation or interpreter-version failure: use mise-runtime for system package prerequisites and runtime validation; SDK installation is distinct from dependency installation.
+2. pip/npm/Go modules: follow the dependency workflow below. Runtime tools missing or a venv/launcher failure load mise-runtime only when needed; keep the dependency task as the primary lane.
+3. External file URL: use the resident `iStoreEnhance download --mode auto --json --events=ndjson -O FILE URL`, or its kspeeder binary equivalent. `dispatch.sh url` retains legacy ksget fallback when the resident download command is absent.
+4. Public HTTPS Git repository: `dispatch.sh git-clone URL [DIRECTORY]` remaps the URL and runs native Git Smart HTTP. Load internal `istoreos-kspeeder-domainfold-fetch` for remap/DNS/TLS evidence. File download and package registry adapters do not cover Git dependencies, submodules or private repositories. Inspect active routes; Gitee is not Gitea.
+5. Docker pull: `dispatch.sh docker-pull IMAGE` performs space and resident-service readiness checks before the original pull. Compose/iStore Docker app setup uses docker-basics first. Do not rewrite image names.
 
-Internally keep three protocols separate:
+## Dependency workflow
 
-- Docker images use the configured registry mirror.
-- Files and package artifacts use `iStoreEnhance/kspeeder download` or an ecosystem-specific package mirror.
-- Git repositories use a remapped repository URL with native Git Smart HTTP; the file downloader cannot clone a repository.
+1. Detect target release, arch/libc, actual package manager and tool paths. First install the verified system-integrated mise package through package-manager, then enter mise-exec. For noninteractive/remote execution load mise-runtime's `data/execution.md`; every independent call must establish its integration, cwd and activation again.
+2. Select an already installed, complete runtime version. Installation and selection use mise-runtime; do not rely on the system interpreter. Python defaults to a project venv created by that explicit Python version; activate and check its actual pip launcher. Node and Go commands execute under explicit mise exec.
+3. Inspect `ks-cli status --json`, `ks-cli doctor TOOL --json` and the side-effect-free explain plan. Use the installed instance's actual TLS/admin ports, health and capabilities. Missing/outdated OpenWrt service components use the detected package/iStore lifecycle. A network ks-cli command may start the installed service: include that effect in the existing authorization.
+4. Run authorized dependencies via `KAIPLUS_CONFIRMED=1 sh scripts/dispatch.sh pip|npm|go RESOLVED_VERSION -- TOOL_ARGS...`. The helper re-enters integration, selects Node/Go, restores the explicitly chosen venv for pip, checks integrity and doctor before calling the native adapter. It preserves arguments/exit status and writes no global client configuration.
+5. For a small repeatable acceptance run use `scripts/smoke.sh TOOL RESOLVED_VERSION NEW_ABSOLUTE_DIRECTORY` with KAIPLUS_CONFIRMED=1. It downloads pinned real third-party dependencies into isolated caches/project files and runs them; read `data/dependencies.md` for recipes and results. A successful client run leaves gateway verification pending.
+6. Capture matching current-instance gateway logs for the same test window. `scripts/evidence.sh TOOL CLIENT_LOG GATEWAY_LOG ACTUAL_TLS_PORT` verifies the maintained smoke recipes' metadata/index and artifact requests, rejecting cache-only, wrong-port, unrelated-artifact and client-direct evidence. Inspect actual strategy and verification outcomes; never report acceleration from explain output or cache success alone.
 
-## Dispatch Rules
+## Scope and diagnosis
 
-1. If the input is an external file URL, use `iStoreEnhance download --mode auto --json --events=ndjson -O <FILE> <URL>` or `kspeeder download --mode auto --json --events=ndjson -O <FILE> <URL>`; use `istoreos-kspeeder-domainfold-fetch/scripts/ksget.sh` only as a legacy-compatible wrapper.
-2. If the input is a public HTTPS Git repository, remap the repository URL through KSpeeder and run native `git clone`. Use the dispatcher below; do not pass a repository URL to the `download` subcommand.
-3. If the input is a Docker image pull, first run Docker space checks, then ensure `istoreenhance` is ready, then run the original `docker pull`.
-4. If the input is Docker Compose or an iStore Docker-style app install, route to `istoreos-docker-basics` first; that skill will require the KSpeeder readiness check before any pull-like action.
-5. If setup emits `need-confirmation:`, explain the install/UCI/service effect in user language, ask once, and rerun only after explicit confirmation.
-
-## Script
-
-Use the dispatcher when the user provided a concrete URL or image:
-
-```sh
-SKILLS_DIR="${KAIPLUS_SKILLS_DIR:-${KAIPLUS_HOME:?KAIPLUS_HOME is required}/config/skills}"
-sh "$SKILLS_DIR/istoreos-download-acceleration/scripts/dispatch.sh" url -o /tmp/file.bin "https://github.com/..."
-sh "$SKILLS_DIR/istoreos-download-acceleration/scripts/dispatch.sh" git-clone "https://github.com/owner/repo.git" /tmp/repo
-sh "$SKILLS_DIR/istoreos-download-acceleration/scripts/dispatch.sh" docker-pull nginx:latest
-iStoreEnhance download --mode auto --json --events=ndjson -O /tmp/file.bin "https://github.com/..."
-```
-
-## When More Evidence Is Needed
-
-- For Git DNS/TLS/remap failures, private-repository boundaries, legacy `ksget.sh`, or DomainFold route inspection, load the internal `istoreos-kspeeder-domainfold-fetch` helper.
-- A registry or package-index mirror does not cover `git+https`, submodules, or other Git protocol dependencies. Those still use the Git lane.
-- Check active routes before promising support for a host. In particular, Gitee is not Gitea.
-
-## Boundaries
-
-- Do not use `ks-cli` on iStoreOS for the normal local-router path; iStoreOS uses the resident iStoreEnhance/KSpeeder service.
-- Do not rewrite Docker image names manually. Let Docker use the configured registry mirror.
-- Do not change global `curl/wget/uclient-fetch` behavior.
-- Do not write `git config --global url.*.insteadOf` or send private-repository credentials to an alias host by default.
-- Do not auto-start or install services unless the user has confirmed the specific effect.
-- Runtime installation belongs to `istoreos-mise-runtime`; do not bypass its integrated paths or certificate policy with ad-hoc environment overrides.
+- ks-cli mise URL replacements cover matching internal HTTP requests; pip/npm/go adapters are separate. Do not promise all backends, Git dependencies, lockfile tarball hosts or download sources are covered.
+- Distinguish client direct fallback from a gateway choosing its canonical origin; the latter still traverses the gateway. Go's proxy list includes direct fallback, which must be reported when observed.
+- For DNS/TLS/capability/port failures check current configuration and bounded client/gateway logs. Preserve TLS, checksum, signatures, lockfile integrity and Go sumdb. No trusted-host/insecure flags as a shortcut.
+- For global pip's missing realpath, create/activate a project venv and test ks-cli pip itself; python -m pip alone is insufficient. No system Python packages or break-system-packages. A provider for realpath must be discovered in actual feeds if still needed.
+- Do not change global curl/wget behavior, Git insteadOf, npmrc, pip config or go env settings. Private credentials must not be forwarded to alias hosts by default.
+- Reuse authorization for the stated scope. If a setup helper reports need-confirmation, request only a newly required effect; do not restart approval for an already authorized action.
