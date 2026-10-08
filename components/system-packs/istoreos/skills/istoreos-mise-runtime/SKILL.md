@@ -13,7 +13,9 @@ cost: medium
 
 # iStoreOS Runtime Environment
 
-Use this skill only for Python, Node.js and Go runtimes on iStoreOS. The supported entrypoint is `mise-istore`; it applies the device's persistent runtime directory and any configured iStoreEnhance/KSpeeder acceleration.
+Use this skill for Python, Node.js and Go runtimes on iStoreOS/OpenWrt with iStore integration. Ubuntu uses its own Linux runtime workflow. Install the system-integrated package first, then enter `mise-exec`, then execute mise and ks-cli in that shell. `mise-istore` is a legacy one-command wrapper, not the only entrypoint.
+
+For noninteractive execution, `scripts/exec.sh PROGRAM_FILE [ARG...]` feeds the complete program to the shell started by mise-exec; it preserves arguments and exit status. The system entrypoint does not accept `mise-exec -- command`. Each independent local/SSH call must re-enter it. HOME comes from UCI runtime_dir; shims are prepended to PATH. This does not change cwd or carry a venv activation into another SSH call. See `data/execution.md` for transport and legacy environment compatibility.
 
 ## Workflow
 

@@ -1,34 +1,42 @@
 #!/bin/sh
 set -eu
-
 runtime="${1:-all}"
-mise_bin="${MISE_ISTORE_BIN:-mise-istore}"
-
-case "$runtime" in
-  python|node|go|all) ;;
-  *) printf 'usage: %s <python|node|go|all>\n' "$0" >&2; exit 2 ;;
-esac
-
+case "$runtime" in python|node|go|all) ;; *) echo 'usage: check.sh python|node|go|all' >&2; exit 2 ;; esac
+system_root="${ISTORE_SYSTEM_ROOT:-}"
+if [ ! -f "$system_root/etc/openwrt_release" ] && ! grep -Eiq '^(ID|ID_LIKE)=.*(openwrt|istoreos)' "$system_root/etc/os-release" 2>/dev/null; then
+  echo 'failed: unsupported-system: use the Ubuntu/Linux runtime workflow' >&2
+  exit 4
+fi
 printf '[system]\n'
-uname -m 2>/dev/null || true
-df -h 2>/dev/null || true
-
+for release in "$system_root/etc/openwrt_release" "$system_root/etc/os-release"; do
+  [ ! -r "$release" ] || grep -E '^(DISTRIB_(ID|RELEASE|ARCH|TARGET)|ID|VERSION_ID|ID_LIKE)=' "$release" || true
+done
+printf 'architecture=%s\n' "$(uname -m)"
+libc=unknown
+for loader in "$system_root"/lib/ld-musl-*.so*; do [ ! -e "$loader" ] || libc=musl; done
+if [ "$libc" = unknown ] && command -v getconf >/dev/null 2>&1 && getconf GNU_LIBC_VERSION >/dev/null 2>&1; then libc=glibc; fi
+printf 'libc=%s\n' "$libc"
+[ ! -r "$system_root/proc/cpuinfo" ] || grep -Ei '^(flags|features)[[:space:]]*:' "$system_root/proc/cpuinfo" | head -n 2 || true
+here="$(CDPATH= cd -- "$(dirname "$0")" && pwd -P)"
+sh "$here/../../istoreos-package-manager/scripts/package.sh" detect || true
+for tool in mise-exec mise mise-istore ks-cli uci pip python node go realpath gcc cc; do
+  if command -v "$tool" >/dev/null 2>&1; then printf 'tool.%s=%s\n' "$tool" "$(command -v "$tool")"; else printf 'tool.%s=missing\n' "$tool"; fi
+done
 runtime_dir=""
-if command -v uci >/dev/null 2>&1; then
-  runtime_dir="$(uci -q get mise.main.runtime_dir 2>/dev/null || true)"
-fi
+if command -v uci >/dev/null 2>&1; then runtime_dir="$(uci -q get mise.main.runtime_dir 2>/dev/null || true)"; fi
 printf 'runtime_dir=%s\n' "${runtime_dir:-not-configured}"
-[ -z "$runtime_dir" ] || df -h "$runtime_dir" 2>/dev/null || true
-
-if ! command -v "$mise_bin" >/dev/null 2>&1; then
-  printf 'mise-istore=unavailable\n'
-  exit 0
+if [ -n "$runtime_dir" ] && [ -d "$runtime_dir" ]; then
+  df -P -k "$runtime_dir" 2>/dev/null || true
+  mount 2>/dev/null | grep -E ' on /overlay | on / ' || true
 fi
-
-printf 'mise-istore=%s\n' "$(command -v "$mise_bin")"
-"$mise_bin" --version 2>&1 || true
-if [ "$runtime" = "all" ]; then
-  "$mise_bin" ls python node go 2>&1 || true
-else
-  "$mise_bin" ls "$runtime" 2>&1 || true
+if [ -n "$runtime_dir" ] && [ "${HOME:-}" = "$runtime_dir" ]; then
+  case "$PATH" in "$HOME/.local/share/mise/shims:"*) environment=integrated ;; *) environment=missing-shims ;; esac
+else environment=enter-mise-exec; fi
+printf 'environment=%s\n' "$environment"
+if command -v mise >/dev/null 2>&1; then
+  mise --version
+  # Avoid reading a different HOME's installed versions or creating integration directories.
+  if [ "$environment" = integrated ]; then
+    if [ "$runtime" = all ]; then mise ls python node go; else mise ls "$runtime"; fi
+  fi
 fi

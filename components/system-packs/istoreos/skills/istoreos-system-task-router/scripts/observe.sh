@@ -77,7 +77,7 @@ trap 'rm -f "$tmp"' EXIT HUP INT TERM
       df -P -k 2>/dev/null | head -n 24 || true
       [ ! -r "$root/proc/meminfo" ] || sed -n '1,12p' "$root/proc/meminfo"
       section capabilities
-      for name in is-opkg opkg uci ubus logread docker FastNet iStoreEnhance; do command_state "$name"; done
+      for name in is-opkg opkg apk mise-exec mise ks-cli uci ubus logread docker FastNet iStoreEnhance; do command_state "$name"; done
       ;;
     network)
       section addresses
@@ -104,12 +104,11 @@ trap 'rm -f "$tmp"' EXIT HUP INT TERM
       ;;
     package)
       section package
-      if command -v opkg >/dev/null 2>&1; then
-        opkg status "$subject" 2>/dev/null | head -n 80 || true
-        opkg files "$subject" 2>/dev/null | head -n 120 || true
-      else
-        echo 'opkg=missing'
-      fi
+      here="$(CDPATH= cd -- "$(dirname "$0")" && pwd -P)"
+      pkg="$here/../../istoreos-package-manager/scripts/package.sh"
+      ISTORE_SYSTEM_ROOT="$root" sh "$pkg" detect 2>&1 || true
+      ISTORE_SYSTEM_ROOT="$root" sh "$pkg" installed "$subject" 2>&1 | head -n 80 || true
+      ISTORE_SYSTEM_ROOT="$root" sh "$pkg" files "$subject" 2>&1 | head -n 120 || true
       ;;
     docker)
       section daemon
