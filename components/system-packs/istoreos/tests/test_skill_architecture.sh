@@ -135,7 +135,8 @@ catalog_bytes="$(wc -c <"$catalog" | tr -d ' ')"
 }
 
 if grep -E '不要建议.*`apk`' "$root/agents/system.md" "$root/agents/istoreos.md" >/dev/null; then
-  fail 'resident Agent instructions prohibit the supported apk package branch'
+  echo 'failed: resident Agent instructions prohibit the supported apk package branch' >&2
+  exit 1
 fi
 prompt_bytes="$(( $(wc -c <"$root/agents/system.md") + $(wc -c <"$root/agents/istoreos.md") ))"
 [ "$prompt_bytes" -le 2048 ] || {
