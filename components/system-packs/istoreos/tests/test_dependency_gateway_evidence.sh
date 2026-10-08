@@ -16,6 +16,18 @@ download gateway done mirror=npm url=https://registry.npmjs.org/is-number/-/is-n
 EOF
 sh "$checker" npm "$tmp/client" "$tmp/gateway" 15443 >"$tmp/out"
 grep -Fx 'result=gateway-confirmed' "$tmp/out"
+# Real gateway races emit success completion without a separate GET event.
+# A cached route still performs network I/O; it is not a client artifact cache.
+cat >"$tmp/race" <<'EOF'
+download gateway done mirror=npm url=https://registry.npmjs.org/is-number strategy=direct_race selected=direct:npmjs bytes=36183
+download gateway done mirror=npm url=https://registry.npmjs.org/is-number/-/is-number-7.0.0.tgz strategy=direct_race selected=direct:npmmirror bytes=3730
+EOF
+sh "$checker" npm "$tmp/client" "$tmp/race" 15443 >"$tmp/out"
+grep -Fx 'result=gateway-confirmed' "$tmp/out"
+sed 's/bytes=[0-9]*/bytes=0/g' "$tmp/race" >"$tmp/empty"
+if sh "$checker" npm "$tmp/client" "$tmp/empty" 15443 >"$tmp/out"; then exit 1; fi
+sed 's/download gateway done/download gateway failed/g' "$tmp/race" >"$tmp/failed-race"
+if sh "$checker" npm "$tmp/client" "$tmp/failed-race" 15443 >"$tmp/out"; then exit 1; fi
 # Actual configured port, unrelated/stale artifact, cache and failures cannot pass.
 if sh "$checker" npm "$tmp/client" "$tmp/gateway" 5443 >"$tmp/out"; then exit 1; fi
 grep -Fx 'result=insufficient-evidence' "$tmp/out"
