@@ -1,6 +1,6 @@
 ---
 name: istoreos-download-acceleration
-description: iStoreOS 下载与依赖加速入口；分流文件、Git、Docker 和 pip/npm/Go modules，验证实际网关请求并诊断失败。
+description: iStoreOS Python/pip、npm、Go modules 依赖安装和验证入口；专用脚本隔离执行，区分客户端与网关结果；也处理文件、Git、Docker 下载。
 owner: system-pack/istoreos
 systems: istoreos
 triggers: 下载慢, 拉取失败, 拉镜像失败, 镜像下载慢, docker pull, GitHub 下载, GitLab 下载, HuggingFace, git clone, 镜像加速, 文件下载失败, pip install, pip 安装, Python 依赖, npm install, npm ci, npm 依赖, Go modules, go mod, 模块下载
