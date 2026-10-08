@@ -2,59 +2,13 @@
 
 Read only the section matching the active task.
 
-## Node.js and npm
+## Python/Node.js/Go and ecosystem dependencies
 
-For Node.js managed by mise:
+Runtime SDK installation belongs to [istoreos-mise-runtime](../../istoreos-mise-runtime/SKILL.md): discover the integrated system package, enter mise-exec, select an explicit compatible version and retain integrity verification. Use its exec.sh for noninteractive commands; mise-exec does not forward argv. Preserve the system-managed HOME.
 
-```sh
-MISE_NODE_MIRROR_URL=https://dl-node-unofficial.linkease.net:5443/ \
-MISE_NODE_VERIFY=0 mise-istore use --global node@lts
-```
+pip/npm/Go modules belong to [istoreos-download-acceleration](../../istoreos-download-acceleration/SKILL.md): its isolated smoke recipes use a Python venv, real npm dependencies and Go require/import, plus matching current-instance index/module and artifact evidence. Use ks-cli adapters and the actual configured ports. Keep TLS, signatures, checksum and sumdb enabled; report observed direct fallback separately.
 
-For npm packages:
-
-```sh
-npm install -g <pkg> --registry=https://dl-npm.linkease.net:5443
-```
-
-Verify the route before install with a bounded request to
-`https://dl-node-unofficial.linkease.net:5443/index.json`.
-
-## Go SDK and modules
-
-For a Go SDK managed by mise:
-
-```sh
-MISE_GO_DOWNLOAD_MIRROR=https://dl-go-sdk.linkease.net:5443 \
-mise-istore install go@<version>
-```
-
-For modules, retain checksum verification:
-
-```sh
-GOPROXY=https://dl-golang.linkease.net:5443,direct go mod download
-```
-
-Do not set `GOSUMDB=off` unless the user explicitly accepts that integrity tradeoff.
-
-## Python and pip
-
-Use the iStoreOS runtime environment before mise:
-
-```sh
-. /lib/functions/mise.sh
-istore_runtime_env
-mise-istore install python@<version>
-```
-
-For pip, use one index so metadata and artifact rewrites stay coherent:
-
-```sh
-PIP_INDEX_URL=https://dl-pypi.linkease.net:5443/simple/ \
-python -m pip install <package>
-```
-
-Do not add a second index by default.
+Do not turn this Git/file remapping helper into another runtime installer or a global dependency configuration path. Downloading an index alone does not validate an SDK or dependency installation.
 
 ## Homebrew
 
