@@ -12,7 +12,9 @@ cat >"$tmp/bin/opkg" <<'EOF'
 printf '%s\n' "opkg $*" >>"$TEST_CALLS"
 case "$1" in
   --help) [ "${TEST_NATIVE_FIND:-0}" = 0 ] || echo '  find <regexp>'; exit 0 ;;
-  list|find) printf '%s\n' 'luci-app-alpha - 1.0 - First plugin' 'luci-app-beta - 1.0 - Second plugin' 'mise - 1.0 - Runtime' ;;
+  find) [ "${TEST_NATIVE_FIND_EMPTY:-0}" = 0 ] || exit 0
+    printf '%s\n' 'luci-app-alpha - 1.0 - First plugin' 'luci-app-beta - 1.0 - Second plugin' 'mise - 1.0 - Runtime' ;;
+  list) printf '%s\n' 'luci-app-alpha - 1.0 - First plugin' 'luci-app-beta - 1.0 - Second plugin' 'mise - 1.0 - Runtime' ;;
   info)
     case "$2" in luci-app-alpha|luci-app-beta) printf 'Package: %s\nVersion: 1.0\n' "$2" ;; esac
     ;;
@@ -30,6 +32,10 @@ sh "$scripts/opkg-find.sh" luci 1 >"$tmp/result"
 TEST_NATIVE_FIND=1 sh "$scripts/opkg-find.sh" 'luci-app-.*' 1 >"$tmp/result"
 [ "$(cat "$tmp/result")" = 'luci-app-alpha - 1.0 - First plugin' ]
 grep -Fx 'opkg find luci-app-.*' "$TEST_CALLS"
+TEST_NATIVE_FIND=1 TEST_NATIVE_FIND_EMPTY=1 sh "$scripts/opkg-find.sh" 'luci-app-.*' 1 >"$tmp/result"
+[ "$(cat "$tmp/result")" = 'luci-app-alpha - 1.0 - First plugin' ]
+TEST_NATIVE_FIND=1 TEST_NATIVE_FIND_EMPTY=1 sh "$scripts/opkg-info.sh" 'luci-app-.*' 1 >"$tmp/result"
+grep -Fx 'Package: luci-app-alpha' "$tmp/result"
 sh "$scripts/opkg-info.sh" 'luci-app-.*' 1 >"$tmp/result"
 grep -Fx 'Package: luci-app-alpha' "$tmp/result"
 if grep -F 'Package: luci-app-beta' "$tmp/result"; then exit 1; fi
