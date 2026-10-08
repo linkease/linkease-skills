@@ -11,9 +11,9 @@ cat >"$tmp/bin/opkg" <<'EOF'
 #!/bin/sh
 printf '%s\n' "opkg $*" >>"$TEST_CALLS"
 case "$1" in
-list) printf '%s\n' 'mise - 2026.8.14 - integrated runtime manager' ;;
+list) printf '%s\n' "${TEST_PACKAGE_NAME:-mise} - 2026.8.14 - integrated runtime manager" ;;
 info) printf '%s\n' 'Package: mise' 'Version: 2026.8.14' ;;
-status) printf '%s\n' 'Package: mise' 'Status: install ok installed' ;;
+status) if [ "${TEST_PACKAGE_MISSING:-0}" = 0 ]; then printf '%s\n' 'Package: mise' 'Status: install ok installed'; fi ;;
 files) printf '%s\n' '/usr/sbin/mise-exec' '/lib/functions/mise.sh' ;;
 esac
 EOF
@@ -32,6 +32,10 @@ EOF
 cat >"$tmp/bin/uci" <<'EOF'
 #!/bin/sh
 printf '%s\n' "$TEST_RUNTIME"
+EOF
+cat >"$tmp/bin/mise" <<'EOF'
+#!/bin/sh
+echo 'mise 2026.8.14'
 EOF
 cat >"$tmp/bin/mise-exec" <<'EOF'
 #!/bin/sh
@@ -55,6 +59,10 @@ if sh "$pkg" install mise >/dev/null 2>&1; then echo 'unguarded package install'
 ! grep -F install "$TEST_CALLS"
 KAIPLUS_CONFIRMED=1 sh "$pkg" install mise
 grep -Fx 'is-opkg install mise' "$TEST_CALLS"
+if TEST_PACKAGE_NAME=notmise sh "$pkg" available mise >"$tmp/out" 2>&1; then exit 1; fi
+grep -F package-unavailable "$tmp/out"
+if TEST_PACKAGE_MISSING=1 sh "$pkg" installed mise >"$tmp/out" 2>&1; then exit 1; fi
+grep -F package-not-installed "$tmp/out"
 # APK executable alone does not override the active opkg database.
 rm "$tmp/system/usr/lib/opkg/status"
 mkdir -p "$tmp/system/lib/apk/db"
