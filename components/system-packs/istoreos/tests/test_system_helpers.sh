@@ -40,10 +40,8 @@ if MISE_ISTORE_BIN="$fake" "$mise_install" python 3.13 >/dev/null 2>&1; then
 fi
 [ ! -s "$log" ]
 
-KAIPLUS_CONFIRMED=1 MISE_ISTORE_BIN="$fake" "$mise_install" nodejs lts
-grep -Fx 'use --global node@lts' "$log" >/dev/null
-grep -Fx 'which node' "$log" >/dev/null
-grep -Fx 'exec -- node --version' "$log" >/dev/null
+# Runtime integration/version selection is exercised through the full public
+# install script in test_runtime_install.sh, not the retired wrapper override.
 
 if KAIPLUS_CONFIRMED=1 MISE_ISTORE_BIN="$fake" "$mise_install" ruby latest >/dev/null 2>&1; then
   echo "failed: unsupported runtime was accepted" >&2
