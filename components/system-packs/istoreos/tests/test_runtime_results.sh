@@ -106,6 +106,13 @@ import json, sys
 r=json.load(open(sys.argv[1])); assert r['mise_data_dir']==sys.argv[2], r
 PY
 [ "$XDG_DATA_HOME" = "$tmp/agent-data" ]
+# Receipts remain valid JSON for literal path characters and multiline diagnostics.
+sh -c '. "$1"; result_emit failed test 7 path "$2"' sh "$runtime/result.sh" 'space "quote" \backslash
+tab	carriage控制' >"$tmp/escaped"
+python3 - "$tmp/escaped" <<'PY'
+import json, sys
+r=json.load(open(sys.argv[1])); assert r['path']=='space "quote" \\backslash\ntab\tcarriage\r控制', r
+PY
 # Installer results are about the SDK, never dependency gateway success.
 KAIPLUS_CONFIRMED=1 sh "$runtime/install.sh" go 1.27.1 >"$tmp/install"
 tail -n 1 "$tmp/install" >"$tmp/result"

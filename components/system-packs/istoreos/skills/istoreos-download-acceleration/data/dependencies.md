@@ -12,6 +12,12 @@ Check service health and per-tool capabilities with `ks-cli status --json` and `
 
 `smoke.sh TOOL RESOLVED_VERSION NEW_ABSOLUTE_DIRECTORY` enters integration and leaves all test assets, caches, plan.json and client.log under that new directory. Supply authorization with KAIPLUS_CONFIRMED=1, including possible start of the already installed service. It rejects an existing directory. Repeat with a fresh directory; do not clear another application's caches or alter global configuration. Storage checks must precede large downloads.
 
+The helper first writes runtime.json from the selected SDK's probe. result.json records schemaVersion, operation, status, exitCode, environment_validation, runtime_validation, client_validation and gateway_validation. A successful client-only run exits 0 but reports status=partial and gateway_validation=pending. A runtime or client failure records failed/not-run phases and preserves its exit code. Pending evidence is not a failed download and is not confirmed acceleration.
+
+For a readable, already captured current-instance gateway log, use `smoke.sh TOOL RESOLVED_VERSION NEW_ABSOLUTE_DIRECTORY CURRENT_GATEWAY_LOG ACTUAL_TLS_PORT`. This optional mode requires sha256sum. It snapshots the log prefix before downloads, checks it was not replaced/truncated, and examines only newly appended lines in gateway.log. All runtime/client gates and matching metadata/artifact evidence are required for status=passed, gateway_validation=confirmed. Insufficient evidence or client direct fallback exits nonzero even if the dependency ran successfully. Obtain gateway logs using the installed instance's supported logging method; do not assume logread captures stdout or silently change persistent service configuration. Missing log access keeps the three-argument run partial until a separate current-window evidence check completes.
+
+`evidence.sh --json TOOL CLIENT_LOG CURRENT_WINDOW_GATEWAY_LOG ACTUAL_TLS_PORT` emits a separate scoped gateway-evidence receipt; the existing text mode remains supported. Confirmation requires exitCode=0 and gateway_validation=confirmed, never just the word passed from an SDK or client receipt. Logs and receipts remain target-local; do not put machine paths/addresses in skills. Capture a fresh window after restart/log rotation.
+
 ### Python/pip
 
 The recipe uses explicit `mise exec python@VERSION -- python -m venv`, activates .venv, validates interpreter prefix and pip path, then runs:

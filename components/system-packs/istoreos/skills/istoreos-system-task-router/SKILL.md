@@ -27,7 +27,7 @@ Identify the actual target System Pack first. Ubuntu is not iStoreOS: do not app
 8. "恢复/重置/升级/危险修改/迁移前" -> `istoreos-backup-restore` first.
 9. "网速慢/测速/延迟或抖动/NAT 类型/IPv6 是否可用/局域网测速" -> `istoreos-network-quality`; a specific slow download remains with `istoreos-download-acceleration`.
 10. "修改 IPv6 PD/relay/NAT 模式/硬盘不休眠/iStore 商店损坏/升级后内核模块异常" -> `istoreos-systools`.
-11. "安装 Python/Node.js/Go SDK/选择运行时版本/python-build/预编译/解释器异常" -> `istoreos-mise-runtime`; first discover/install the integrated mise package, then enter mise-exec, then execute mise/ks-cli inside that environment. Independent remote calls must re-enter it.
+11. "安装 Python/Node.js/Go SDK/选择运行时版本/python-build/预编译/解释器异常" -> `istoreos-mise-runtime`; system facts use check.sh, installed SDK checks use probe.sh, installations use install.sh. These dedicated helpers establish integration for each call and report scoped results.
 12. ".run 文件/未知可执行安装包" -> `istoreos-run-executable`.
 13. "pip install/npm install/npm ci/go mod/依赖下载或安装失败" -> `istoreos-download-acceleration`; an absent runtime or inactive venv loads mise-runtime as needed. Go SDK and Go modules are separate tasks. System feed packages still use package-manager.
 

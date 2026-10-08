@@ -5,6 +5,7 @@ program="${1:-}"
 [ -n "$program" ] && [ -f "$program" ] || { echo 'usage: exec.sh PROGRAM_FILE [ARG...]' >&2; exit 2; }
 program="$(CDPATH= cd -- "$(dirname "$program")" && pwd -P)/$(basename "$program")"
 shift
+here="$(CDPATH= cd -- "$(dirname "$0")" && pwd -P)"
 system_root="${ISTORE_SYSTEM_ROOT:-}"
 if [ ! -f "$system_root/etc/openwrt_release" ] && ! grep -Eiq '^(ID|ID_LIKE)=.*(openwrt|istoreos)' "$system_root/etc/os-release" 2>/dev/null; then
   echo 'failed: unsupported-system: mise-exec belongs to the iStore/OpenWrt integration, not Ubuntu' >&2
@@ -22,7 +23,8 @@ quote() { printf "'"; printf '%s' "$1" | sed "s/'/'\\\\''/g"; printf "'"; }
 {
   printf 'set --'
   for arg in "$@"; do printf ' '; quote "$arg"; done
-  printf '\nexport ISTORE_RUNTIME_ENTERED=1\n'
+  printf '\n. '; quote "$here/environment.sh"
+  printf '\nruntime_environment_check || exit $?\nexport ISTORE_RUNTIME_ENTERED=1\n'
   # Scope mise defaults inside the integrated shell, preserving Agent XDG state.
   printf '%s\n' ': "${MISE_DATA_DIR:=$HOME/.local/share/mise}"' ': "${MISE_CACHE_DIR:=$HOME/.cache/mise}"' ': "${MISE_CONFIG_DIR:=$HOME/.config/mise}"' 'export MISE_DATA_DIR MISE_CACHE_DIR MISE_CONFIG_DIR'
   printf 'exec sh '

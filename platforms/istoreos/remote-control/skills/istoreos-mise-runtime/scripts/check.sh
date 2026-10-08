@@ -8,6 +8,7 @@ if [ ! -f "$system_root/etc/openwrt_release" ] && ! grep -Eiq '^(ID|ID_LIKE)=.*(
   exit 4
 fi
 printf '[system]\n'
+printf 'scope=system-current-shell\n'
 for release in "$system_root/etc/openwrt_release" "$system_root/etc/os-release"; do
   [ ! -r "$release" ] || grep -E '^(DISTRIB_(ID|RELEASE|ARCH|TARGET)|ID|VERSION_ID|ID_LIKE)=' "$release" || true
 done

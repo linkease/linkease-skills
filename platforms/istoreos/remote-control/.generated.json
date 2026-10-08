@@ -24,6 +24,6 @@
     "transport.ssh": "1.1.0",
     "transport.luci-http": "1.0.0"
   },
-  "sourceDigest": "sha256:ee223848e036a5f2d998cc0eac318218b7366f49da9ba59ffea352f3fc1d6983",
-  "treeDigest": "sha256:3a0d10931db9db93b21e56121990b3c70c3c6f94efb9a7175adac15984ac6190"
+  "sourceDigest": "sha256:21582df10b92609c9dff0c1c9474768206c88934bfe46b870f8fe4ca2733ed86",
+  "treeDigest": "sha256:c02211c6f1596cfbd21dba0cd73117c9d05e3a0c33556a92c18d0ddcd1480883"
 }

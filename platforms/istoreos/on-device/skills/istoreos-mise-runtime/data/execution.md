@@ -6,6 +6,14 @@ Read system release, architecture/libc, actual package database and tools with `
 
 Read-only `check.sh` does not enter mise-exec: the system entrypoint can create a directory and perform network probes. It only lists installed versions if already in the correct HOME/shims environment. Entering an unconfigured integration can fall back to the original HOME; do not mistake that for persistent storage setup. Use the integration's UI/setup path for directory changes.
 
+## Agent entrypoints and results
+
+`probe.sh python|node|go RESOLVED_VERSION` establishes integration for this call and checks the exact installed SDK using verify.sh. Automatic SDK installation is disabled. Stdout is one JSON receipt; verification diagnostics go to stderr. Entering native mise-exec can run its existing setup/network probes; this is not the strictly read-only system check. Reuse authorization already granted for this execution environment, or explain those effects before a first entry.
+
+Receipts have schemaVersion=1, operation, status and numeric exitCode. runtime-probe includes environment_validation, runtime_validation, home, effective mise directories, sdk_path and the exact version. A successful provenance check means the interpreter/SDK came from `mise where`, not merely a matching system version. runtime-install appends a JSON receipt after normal logs; it reports activation, phase and runtime_validation, with gateway_validation=not-applicable. Exit codes and failures remain authoritative. Invalid arguments or failures before entering the task program can return a diagnostic/nonzero status without an operation receipt; never infer success from a missing receipt.
+
+For dependencies use the download skill's smoke entrypoint and result.json. It distinguishes runtime verification, real dependency execution and gateway evidence. Custom dependency.sh commands execute the requested tool; they still need application-specific runtime checks and download evidence before a complete acceptance claim. No general command interceptor is installed in Kai. Reading a system version is allowed as a system observation; it cannot establish mise SDK success/failure or replace an operation receipt.
+
 ## Interactive shell
 
 Run `mise-exec`, then check HOME, PATH, `mise --version` and selected executable paths inside the resulting shell. Runtime dir is HOME, not a promise about cwd. `cd` to an explicitly chosen project directory for project configuration and dependencies. Exit returns to the original shell.

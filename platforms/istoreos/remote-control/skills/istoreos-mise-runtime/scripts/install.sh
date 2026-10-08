@@ -13,6 +13,25 @@ if [ "$runtime" = python ] && ! printf '%s\n' "$version" | grep -Eq '^[0-9]+\.[0
 fi
 here="$(CDPATH= cd -- "$(dirname "$0")" && pwd -P)"
 if [ "${ISTORE_RUNTIME_ENTERED:-}" != 1 ]; then exec sh "$here/exec.sh" "$here/install.sh" "$runtime" "$version" "$activation"; fi
+. "$here/result.sh"
+install_phase=environment
+environment_validation=failed
+install_log=""
+install_result() {
+  code=$?
+  trap - EXIT HUP INT TERM
+  [ -z "$install_log" ] || rm -f "$install_log"
+  status=failed; validation=not-run
+  [ "$install_phase" != verification ] || validation=failed
+  if [ "$code" = 0 ]; then status=passed; validation=passed; fi
+  result_emit "$status" runtime-install "$code" runtime "$runtime" version "$version" activation "$activation" \
+    phase "$install_phase" environment_validation "$environment_validation" runtime_validation "$validation" gateway_validation not-applicable
+  exit "$code"
+}
+trap install_result EXIT
+. "$here/environment.sh"
+runtime_environment_check
+environment_validation=passed
 configured_home="$(uci -q get mise.main.runtime_dir)"
 [ "$HOME" = "$configured_home" ] || { echo 'failed: wrong runtime HOME; enter mise-exec' >&2; exit 4; }
 case "$PATH" in "$HOME/.local/share/mise/shims:"*) ;; *) echo 'failed: missing integrated shims' >&2; exit 4 ;; esac
@@ -55,8 +74,9 @@ if ! printf '%s\n' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
   version="$resolved"
 fi
 spec="$runtime@$version"
+install_phase=installation
 log="$(mktemp "${TMPDIR:-/tmp}/istore-install.XXXXXX")"
-trap 'rm -f "$log"' EXIT HUP INT TERM
+install_log="$log"
 status=0
 ks-cli mise install "$spec" >"$log" 2>&1 || status=$?
 cat "$log"
@@ -68,5 +88,6 @@ case "$activation" in
   project) ks-cli mise use "$spec" ;;
   global) ks-cli mise use --global "$spec" ;;
 esac
+install_phase=verification
 sh "$here/verify.sh" "$runtime" "$version"
 printf 'installed=%s activation=%s\n' "$spec" "$activation"
