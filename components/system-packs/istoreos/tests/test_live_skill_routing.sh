@@ -146,6 +146,7 @@ istoreos-package-manager|帮我找一个文件管理插件
 istoreos-docker-basics|Docker 容器反复退出，帮我检查容器状态和日志
 istoreos-docker-data-root-migrate|把 Docker 数据目录迁移到外接硬盘
 istoreos-download-acceleration|Docker 镜像下载很慢，怎么加速拉取
+istoreos-download-acceleration|用已经安装的 Python 3.13.7 验证 Python 依赖安装流程，创建隔离 venv，安装 idna 并检查网关证据
 istoreos-luci-recovery|LuCI 管理页面打不开，但 SSH 可以登录
 istoreos-network-quality|宽带测速结果很差，检查延迟、丢包和上下行速度
 istoreos-storage-path|overlay 空间不足，帮我选择持久化存储路径
