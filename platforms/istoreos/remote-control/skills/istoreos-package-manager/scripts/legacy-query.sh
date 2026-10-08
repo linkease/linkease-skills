@@ -16,11 +16,13 @@ fi
 find_candidates() {
   if opkg --help 2>/dev/null | grep -qE '^[[:space:]]*find[[:space:]]'; then
     result="$(opkg find "$subject")"
-    printf '%s\n' "$result" | head -n "$limit"
-  else
-    result="$(opkg list)"
-    printf '%s\n' "$result" | grep -i -- "$subject" | head -n "$limit"
+    if [ -n "$result" ]; then
+      printf '%s\n' "$result" | head -n "$limit"
+      return 0
+    fi
   fi
+  result="$(opkg list)"
+  printf '%s\n' "$result" | grep -i -- "$subject" | head -n "$limit"
 }
 case "$action" in
   find) find_candidates ;;
