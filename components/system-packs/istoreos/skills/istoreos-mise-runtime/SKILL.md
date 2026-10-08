@@ -1,9 +1,9 @@
 ---
 name: istoreos-mise-runtime
-description: 在 iStoreOS 上检查、安装和验证 Python、Node.js 或 Go 运行环境；使用系统集成的 mise 存储目录与下载加速配置。
+description: 在 iStoreOS 集成的 mise-exec 环境安装、选择和验证 Python、Node.js、Go SDK；诊断预编译、版本和解释器问题。
 owner: system-pack/istoreos
 systems: istoreos
-triggers: 安装 Python, 安装 Node.js, 安装 node, 安装 Go, 安装 golang, Python 版本, Node.js 版本, Go 版本, 开发环境, 运行环境
+triggers: 安装 Python, 安装 Node.js, 安装 node, 安装 Go, 安装 golang, Python 版本, Node.js 版本, Go 版本, 开发环境, 运行环境, python-build, no acceptable C compiler, mise, realpath, venv
 negative-triggers: 安装 OpenWrt 软件包, 安装 Docker, 编译 KaiPlus
 auto-use: prefer
 routing-group: istoreos-primary
@@ -13,16 +13,29 @@ cost: medium
 
 # iStoreOS Runtime Environment
 
-Use this skill for Python, Node.js and Go runtimes on iStoreOS/OpenWrt with iStore integration. Ubuntu uses its own Linux runtime workflow. Install the system-integrated package first, then enter `mise-exec`, then execute mise and ks-cli in that shell. `mise-istore` is a legacy one-command wrapper, not the only entrypoint.
-
-For noninteractive execution, `scripts/exec.sh PROGRAM_FILE [ARG...]` feeds the complete program to the shell started by mise-exec; it preserves arguments and exit status. The system entrypoint does not accept `mise-exec -- command`. Each independent local/SSH call must re-enter it. HOME comes from UCI runtime_dir; shims are prepended to PATH. This does not change cwd or carry a venv activation into another SSH call. See `data/execution.md` for transport and legacy environment compatibility.
+Use for iStoreOS/OpenWrt with iStore runtime integration. Ubuntu uses its own Linux runtime workflow; do not prescribe iStore HOME, UCI or mise-exec there. Installation authorization does not imply global version/configuration changes.
 
 ## Workflow
 
-1. Run `scripts/check.sh [python|node|go|all]` to check architecture, disk space, runtime directory, mise availability and installed versions.
-2. If `mise-istore` is missing, route installation of the iStore mise package through the package manager skill. Do not install upstream mise with curl.
-3. Resolve the runtime and version with the user. For Node.js, use `lts` only when the user has no version preference; do not silently change a requested version.
-4. Explain that installation downloads files and writes under the configured runtime directory, then obtain explicit confirmation.
-5. Run `KAIPLUS_CONFIRMED=1 scripts/install.sh <python|node|go> <version>` and verify the executable and reported version.
+1. Run `sh scripts/check.sh [python|node|go|all]` for release, architecture/libc, tools, package manager, runtime_dir, space and environment. Unknown libc/arch needs evidence, not an assumed archive. Verify persistent storage/mounts before installing; inspect overlay or low space with storage-path.
+2. If integration is absent, use package-manager to discover and install the actual feed's integrated mise package. Verify mise-exec, mise, integration files and configured runtime_dir; no upstream curl bypass. Source package names do not prove feed availability.
+3. Enter `mise-exec`, then run mise, ks-cli and runtime/dependency commands in that shell. HOME and shims come from system integration; cwd is chosen separately. For local/remote noninteractive calls use `scripts/exec.sh PROGRAM_FILE [ARG...]`; it launches the staged program in the shell's environment. Each independent call re-enters integration. Read `data/execution.md` when transport or legacy acceleration matters.
+4. Resolve the user's version against the target's actual backend/platform. Python needs a verified complete version; do not rely on an anomalous latest/partial result. Node lts is an option only without a requested version. Show the selected version and installation/configuration effects within the user's existing authorization.
+5. Run `KAIPLUS_CONFIRMED=1 sh scripts/install.sh <python|node|go> <version> [none|project|global]`. It enters mise-exec itself, uses ks-cli preflight/install and verifies the exact installed runtime. Default `none` installs without selecting a global version. `project` changes the current project's mise configuration; `global` changes this integrated HOME's global selection.
+6. For dependencies, continue with download-acceleration inside the same environment; Python defaults to an activated project venv. Package downloads inside a runtime command are not automatically accelerated by ks-cli mise.
 
-If the runtime directory is on overlay or available space is low, stop and recommend moving it to persistent storage before installation. For download failures, use the download-acceleration skill rather than bypassing certificate checks or replacing the system integration.
+## Installation versus activation
+
+`mise install` stores a runtime. `mise use VERSION` selects a project version (and may install); `--global` changes the integrated HOME's default. Shims choose from the current configuration. `mise exec VERSION -- COMMAND` chooses a version for that process and its children without a persistent selection; do not mistake an existing system Python on PATH for mise success.
+
+`verify.sh RUNTIME RESOLVED_VERSION` checks install-root provenance plus exact version and runtime functionality. Verification disables automatic missing-runtime installation. Python checks ssl/sqlite3/bz2/lzma/ctypes/venv and python -m pip, but this alone does not verify the pip launcher used by ks-cli pip.
+
+## Runtime-specific decisions
+
+Read only the needed section in `data/runtimes.md` for Python precompiled arch/libc and latest/sort diagnosis, Node official/unofficial artifacts and integrity, or Go SDK provenance. Python installation forces precompiled mode; no matching artifact must stop rather than install compilers or silently build from source. Explicit 3.13.7 is historical x86_64/musl evidence, never a permanent latest version.
+
+The legacy integration can set a Node mirror and verification=0. The installer clears that mirror in its process, enables Node verification, and rejects persisted custom mirrors or disabled checksum/signature settings. It preserves system HOME/shims and uses ks-cli's actual-port URLs; it does not change global mise configuration for acceleration.
+
+## Failure handling
+
+Use `sh scripts/diagnose.sh LOG_FILE` with current evidence. Distinguish version selection, missing precompiled artifact, source build/compiler absence, pip-launcher realpath, inactive venv, download and integrity/TLS failures. Keep the original exit code. For gateway failures inspect service health/capabilities, actual ports, DNS/TLS and request logs; use system packages/iStore for missing or outdated service components. Never disable verification or promise all backends/Git sources are mirrored.

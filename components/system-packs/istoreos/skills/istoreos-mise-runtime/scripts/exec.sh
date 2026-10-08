@@ -3,6 +3,7 @@
 set -eu
 program="${1:-}"
 [ -n "$program" ] && [ -f "$program" ] || { echo 'usage: exec.sh PROGRAM_FILE [ARG...]' >&2; exit 2; }
+program="$(CDPATH= cd -- "$(dirname "$program")" && pwd -P)/$(basename "$program")"
 shift
 system_root="${ISTORE_SYSTEM_ROOT:-}"
 if [ ! -f "$system_root/etc/openwrt_release" ] && ! grep -Eiq '^(ID|ID_LIKE)=.*(openwrt|istoreos)' "$system_root/etc/os-release" 2>/dev/null; then
@@ -21,9 +22,9 @@ quote() { printf "'"; printf '%s' "$1" | sed "s/'/'\\\\''/g"; printf "'"; }
 {
   printf 'set --'
   for arg in "$@"; do printf ' '; quote "$arg"; done
-  printf '\n'
-  cat "$program"
-  printf '\n'
+  printf '\nexport ISTORE_RUNTIME_ENTERED=1\nexec sh '
+  quote "$program"
+  printf ' "$@"\n'
 } >"$payload"
 status=0
 mise-exec <"$payload" || status=$?
