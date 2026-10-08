@@ -13,10 +13,11 @@ cost: low
 # iStoreOS System Task Router
 
 Use this skill when an iStoreOS request is ambiguous, spans domains, or has no obvious specialist. It is a router, not a second implementation of each specialist.
+Identify the actual target System Pack first. Ubuntu is not iStoreOS: do not apply its opkg/apk, UCI, procd or mise-exec workflow to ordinary Linux.
 
 ## Select One Primary Skill
 
-1. "安装/卸载/升级/找软件/应用商店" -> `istoreos-package-manager`.
+1. "安装/卸载/升级/找软件/应用商店/opkg/apk/mise 插件" -> `istoreos-package-manager`; detect the actual database/tool before choosing commands.
 2. "Docker/容器/dockerd/compose" -> `istoreos-docker-basics`; pull/download failures -> `istoreos-download-acceleration`.
 3. "GitHub/GitLab/HuggingFace/下载链接/git clone/文件下载慢" -> `istoreos-download-acceleration`.
 4. "磁盘满/overlay 满/数据目录/装到硬盘/迁移目录" -> `istoreos-storage-path`; Docker data-root migration routes to `istoreos-docker-data-root-migrate`.
@@ -26,8 +27,9 @@ Use this skill when an iStoreOS request is ambiguous, spans domains, or has no o
 8. "恢复/重置/升级/危险修改/迁移前" -> `istoreos-backup-restore` first.
 9. "网速慢/测速/延迟或抖动/NAT 类型/IPv6 是否可用/局域网测速" -> `istoreos-network-quality`; a specific slow download remains with `istoreos-download-acceleration`.
 10. "修改 IPv6 PD/relay/NAT 模式/硬盘不休眠/iStore 商店损坏/升级后内核模块异常" -> `istoreos-systools`.
-11. "安装 Python/Node.js/Go/选择运行时版本" -> `istoreos-mise-runtime`; if mise is absent, use `istoreos-package-manager` to install the iStore-integrated package first.
+11. "安装 Python/Node.js/Go SDK/选择运行时版本/python-build/预编译/解释器异常" -> `istoreos-mise-runtime`; first discover/install the integrated mise package, then enter mise-exec, then execute mise/ks-cli inside that environment. Independent remote calls must re-enter it.
 12. ".run 文件/未知可执行安装包" -> `istoreos-run-executable`.
+13. "pip install/npm install/npm ci/go mod/依赖下载或安装失败" -> `istoreos-download-acceleration`; an absent runtime or inactive venv loads mise-runtime as needed. Go SDK and Go modules are separate tasks. System feed packages still use package-manager.
 
 ## Loading Budget
 
@@ -48,4 +50,4 @@ Use this skill when an iStoreOS request is ambiguous, spans domains, or has no o
 
 ## Safety
 
-Before a write, state the target, effect, interruption risk, verification, and rollback or backup path, then wait for explicit confirmation. After every write, verify read-only and report the evidence.
+Before a write, state target, effects, verification and recovery, then obtain any missing authorization. Reuse already granted authorization for that scope; ask again only for a new effect or product decision. After a write, verify and report current evidence.
